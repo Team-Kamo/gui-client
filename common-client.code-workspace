@@ -1,0 +1,39 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {},
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "build",
+        "type": "shell",
+        "command": "cd ${workspaceFolder} && cmake --build build",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      }
+    ]
+  },
+  "launch": {
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "(Windows) 起動",
+        "type": "cppvsdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/build/Debug/octane-common-library.exe",
+        "args": ["--enable-debug"],
+        "stopAtEntry": false,
+        "cwd": "${fileDirname}",
+        "console": "internalConsole",
+        "environment": [],
+        "preLaunchTask": "build"
+      }
+    ]
+  }
+}
