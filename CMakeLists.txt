@@ -30,11 +30,17 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-find_package(Qt6 REQUIRED Widgets)
+set(QT_DEFAULT_MAJOR_VERSION 6)
+
+find_package(Qt6 REQUIRED COMPONENTS Widgets REQUIRED)
 qt_standard_project_setup()
 
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(SRC_DIR ${ROOT_DIR}/src)
 
-include_directories(${SRC_DIR})
+include_directories(${ROOT_DIR}/QHotkey/QHotkey)
+add_subdirectory(${ROOT_DIR}/QHotkey)
+
+# include_directories(${ROOT_DIR}/api-client/src)
+# add_subdirectory(${ROOT_DIR}/api-client)
 add_subdirectory(${SRC_DIR})

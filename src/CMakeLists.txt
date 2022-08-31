@@ -1,10 +1,14 @@
 cmake_minimum_required(VERSION 3.21)
 
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/lib)
-
 add_executable(
-  octane-common-library
-  main.cpp
+  octane
+  cpp/main.cpp
+  cpp/main_window.cpp
+  cpp/general_panel.cpp
+  cpp/room_config_panel.cpp
+  cpp/info_panel.cpp
 )
 
-target_link_libraries(octane-common-library liboctane)
+target_include_directories(octane PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(octane PRIVATE Qt6::Widgets qhotkey)

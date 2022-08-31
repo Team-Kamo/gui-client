@@ -4,7 +4,23 @@
       "path": "."
     }
   ],
-  "settings": {},
+  "settings": {
+    "files.associations": {
+      "*.h": "cpp",
+      "*.txt": "plaintext",
+      "CMakeLists.txt": "cmake",
+      "*.html": "html",
+      "*.i": "cpp",
+      "qwidget": "cpp",
+      "qmainwindow": "cpp",
+      "qhboxlayout": "cpp",
+      "qlabel": "cpp",
+      "qpushbutton": "cpp",
+      "qlineedit": "cpp",
+      "qtabwidget": "cpp",
+      "qformlayout": "cpp"
+    }
+  },
   "tasks": {
     "version": "2.0.0",
     "tasks": [
@@ -26,13 +42,14 @@
         "name": "(Windows) 起動",
         "type": "cppvsdbg",
         "request": "launch",
-        "program": "${workspaceFolder}/build/Debug/octane-common-library.exe",
+        "program": "${workspaceFolder}/build/Debug/octane.exe",
         "args": ["--enable-debug"],
         "stopAtEntry": false,
         "cwd": "${fileDirname}",
         "console": "internalConsole",
         "environment": [],
-        "preLaunchTask": "build"
+        "preLaunchTask": "build",
+        "visualizerFile": "c:\\Users\\owner\\AppData\\Roaming\\Code\\User\\workspaceStorage\\c1d22648de608afbfd3b7705354a6f1d\\tonka3000.qtvsctools\\qt.natvis.xml"
       }
     ]
   }

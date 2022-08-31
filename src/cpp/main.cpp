@@ -1,6 +1,19 @@
+/**
+ * @file main.cpp
+ * @author cosocaf (cosocaf@gmail.com)
+ * @brief
+ * @version 0.1
+ * @date 2022-08-30
+ *
+ * liboctaneテスト用のmain関数置き場。
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
+
 #include <QApplication>
 
-#include "lib/include/main_window.h"
+#include "include/main_window.h"
 
 #if defined(_WIN32) || defined(_WIN64)
 
@@ -11,7 +24,7 @@ int WinMain([[maybe_unused]] HINSTANCE hInst,
             [[maybe_unused]] LPSTR lpCmdLine,
             [[maybe_unused]] int nCmdShow) {
   QApplication app(__argc, __argv);
-  octane::MainWindow mainWindow;
+  octane::gui::MainWindow mainWindow(&app);
   mainWindow.show();
   return app.exec();
 }
@@ -20,7 +33,7 @@ int WinMain([[maybe_unused]] HINSTANCE hInst,
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
-  octane::MainWindow mainWindow;
+  octane::MainWindow mainWindow(&app);
   mainWindow.show();
   return app.exec();
 }

@@ -1,0 +1,6 @@
+[submodule "api-client"]
+	path = api-client
+	url = https://github.com/Team-Kamo/api-client.git
+[submodule "QHotkey"]
+	path = QHotkey
+	url = https://github.com/Skycoder42/QHotkey
