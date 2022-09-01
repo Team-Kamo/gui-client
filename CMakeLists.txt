@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(octane-common-client CXX)
+project(octane-gui-client CXX)
 
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
@@ -38,9 +38,12 @@ qt_standard_project_setup()
 set(ROOT_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 set(SRC_DIR ${ROOT_DIR}/src)
 
+link_directories(${CMAKE_BINARY_DIR}/lib)
+
 include_directories(${ROOT_DIR}/QHotkey/QHotkey)
 add_subdirectory(${ROOT_DIR}/QHotkey)
 
-# include_directories(${ROOT_DIR}/api-client/src)
-# add_subdirectory(${ROOT_DIR}/api-client)
+include_directories(${ROOT_DIR}/api-client/src/include)
+add_subdirectory(${ROOT_DIR}/api-client)
+
 add_subdirectory(${SRC_DIR})

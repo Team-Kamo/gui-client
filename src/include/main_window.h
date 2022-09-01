@@ -14,6 +14,8 @@
 #ifndef OCTANE_GUI_CLIENT_MAIN_WINDOW_H_
 #define OCTANE_GUI_CLIENT_MAIN_WINDOW_H_
 
+#include <api_client.h>
+
 #include <QApplication>
 #include <QHotkey>
 #include <QSettings>
@@ -24,6 +26,8 @@ namespace octane::gui {
   class MainWindow : public QMainWindow {
     QSettings settings;
     QHotkey hotkey;
+
+    ApiClient apiClient;
 
   public:
     MainWindow(QApplication* app, QWidget* parent = nullptr);

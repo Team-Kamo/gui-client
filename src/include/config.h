@@ -11,10 +11,14 @@ namespace octane::gui {
   constexpr auto ORGANIZATION = "Team Kamo";
   constexpr auto COPYRIGHT    = "© 2022 Team Kamo";
 
-  constexpr auto SETTING_KEY_ROOM_ID = "room/id";
+  constexpr auto API_TOKEN    = "mock";
+  constexpr auto API_ORIGIN   = "http://localhost:300";
+  constexpr auto API_BASE_URL = "/api/v1";
+
+  constexpr auto SETTING_KEY_ROOM_ID           = "room/id";
   constexpr auto SETTING_DEFAULT_VALUE_ROOM_ID = "";
 
-  constexpr auto SETTING_KEY_KEYMAP_COPY = "keymap/copy";
+  constexpr auto SETTING_KEY_KEYMAP_COPY           = "keymap/copy";
   constexpr auto SETTING_DEFAULT_VALUE_KEYMAP_COPY = "Ctrl+Alt+C";
 } // namespace octane::gui
 

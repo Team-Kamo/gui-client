@@ -11,4 +11,4 @@ add_executable(
 
 target_include_directories(octane PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(octane PRIVATE Qt6::Widgets qhotkey)
+target_link_libraries(octane PRIVATE Qt6::Widgets qhotkey octane_api_client)

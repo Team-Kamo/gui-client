@@ -33,6 +33,7 @@ namespace octane::gui {
     form->addRow(versionLabel, versionInfo);
 
     auto copyright = new QLabel(COPYRIGHT);
+    copyright->setAlignment(Qt::AlignHCenter);
     form->addRow(copyright);
 
     rootLayout->addLayout(form);

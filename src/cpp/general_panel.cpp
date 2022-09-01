@@ -2,12 +2,12 @@
 
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
 
 namespace octane::gui {
-  GeneralPanel::GeneralPanel(QWidget* parent) : QWidget(parent) {
+  GeneralPanel::GeneralPanel(QWidget* parent)
+    : QWidget(parent), idInput(nullptr) {
     initLayout();
   }
 
@@ -17,13 +17,15 @@ namespace octane::gui {
     auto form = new QFormLayout();
 
     auto idLabel = new QLabel("ルームID: ");
-    auto idInput = new QLineEdit();
+    idInput = new QLineEdit();
     form->addRow(idLabel, idInput);
 
     auto saveButton = new QPushButton("保存");
     form->addRow(saveButton);
 
     auto orLabel = new QLabel("またはルームを新規作成");
+    orLabel->setAlignment(Qt::AlignHCenter);
+    orLabel->setStyleSheet("margin: 1em");
     form->addRow(orLabel);
 
     auto nameLabel = new QLabel("ルーム名: ");

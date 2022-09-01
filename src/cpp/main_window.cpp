@@ -23,7 +23,11 @@
 
 namespace octane::gui {
   MainWindow::MainWindow(QApplication* app, QWidget* parent)
-    : QMainWindow(parent), hotkey(app), settings(ORGANIZATION, APP_NAME) {
+    : QMainWindow(parent),
+      hotkey(app),
+      settings(ORGANIZATION, APP_NAME),
+      apiClient(API_TOKEN, API_ORIGIN, API_BASE_URL) {
+    apiClient.init();
     this->setWindowTitle(APP_NAME);
     initSettings();
     initLayout();
