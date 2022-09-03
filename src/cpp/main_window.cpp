@@ -18,10 +18,13 @@
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QTabWidget>
 
+#include "include/api.h"
 #include "include/config.h"
 #include "include/general_panel.h"
 #include "include/info_panel.h"
+#include "include/key_config_panel.h"
 #include "include/room_config_panel.h"
+#include "include/settings.h"
 
 #if defined(Q_OS_WIN)
 #include "windows/include/win_clipboard_manager.h"
@@ -30,7 +33,6 @@
 namespace octane::gui {
   MainWindow::MainWindow(QApplication* app, QWidget* parent)
     : QMainWindow(parent),
-      settings(ORGANIZATION, APP_NAME),
       apiClient(API_TOKEN, API_ORIGIN, API_BASE_URL),
       copyFromSelectionHotkey(nullptr),
       copyFromClipboardHotkey(nullptr),
@@ -45,69 +47,26 @@ namespace octane::gui {
       return;
     }
     this->setWindowTitle(APP_NAME);
-    initSettings();
     initLayout();
     initClipboardManager();
     registerHotkeys();
   }
   MainWindow::~MainWindow() {}
 
-  void MainWindow::initSettings() {
-    if (!settings.contains(SETTING_KEY_ROOM_ID)) {
-      settings.setValue(SETTING_KEY_ROOM_ID, SETTING_DEFAULT_VALUE_ROOM_ID);
-    }
-
-    if (!settings.contains(SETTING_KEY_KEYMAP_COPY_FROM_SELECTION)) {
-      settings.setValue(SETTING_KEY_KEYMAP_COPY_FROM_SELECTION,
-                        SETTING_DEFAULT_VALUE_KEYMAP_COPY_FROM_SELECTION);
-    }
-
-    if (!settings.contains(SETTING_KEY_KEYMAP_COPY_FROM_CLIPBOARD)) {
-      settings.setValue(SETTING_KEY_KEYMAP_COPY_FROM_CLIPBOARD,
-                        SETTING_DEFAULT_VALUE_KEYMAP_COPY_FROM_CLIPBOARD);
-    }
-
-    if (!settings.contains(SETTING_KEY_KEYMAP_PASTE_TO_SELECTION)) {
-      settings.setValue(SETTING_KEY_KEYMAP_PASTE_TO_SELECTION,
-                        SETTING_DEFAULT_VALUE_KEYMAP_PASTE_TO_SELECTION);
-    }
-
-    if (!settings.contains(SETTING_KEY_KEYMAP_PASTE_TO_CLIPBOARD)) {
-      settings.setValue(SETTING_KEY_KEYMAP_PASTE_TO_CLIPBOARD,
-                        SETTING_DEFAULT_VALUE_KEYMAP_PASTE_TO_CLIPBOARD);
-    }
-  }
-
   void MainWindow::initLayout() {
     auto centralWidget = new QWidget(this);
 
     auto rootLayout = new QHBoxLayout(centralWidget);
 
-    auto tabWidget    = new QTabWidget();
-    auto generalPanel = new GeneralPanel(
-      tabWidget,
-      settings.value(SETTING_KEY_ROOM_ID).toString(),
-      [=](const QString& roomId) {
-        settings.setValue(SETTING_KEY_ROOM_ID, roomId);
-      },
-      [=](const QString& roomName) {
-        auto result = apiClient.createRoom(roomName.toStdString());
-        if (!result) {
-          QMessageBox::critical(
-            this,
-            tr("Error"),
-            tr((result.err().code + "\n" + result.err().reason).c_str()));
-          return settings.value(SETTING_KEY_ROOM_ID).toString();
-        }
-        QString roomId = QString::fromStdString(result.get());
-        settings.setValue(SETTING_KEY_ROOM_ID, roomId);
-        return roomId;
-      });
+    auto tabWidget       = new QTabWidget();
+    auto generalPanel    = new GeneralPanel(tabWidget);
     auto roomConfigPanel = new RoomConfigPanel(tabWidget);
+    auto keyConfigPanel  = new KeyConfigPanel(tabWidget);
     auto infoPanel       = new InfoPanel(tabWidget);
 
     tabWidget->addTab(generalPanel, "一般");
     tabWidget->addTab(roomConfigPanel, "ルーム設定");
+    tabWidget->addTab(keyConfigPanel, "キー設定");
     tabWidget->addTab(infoPanel, "情報");
 
     rootLayout->addWidget(tabWidget);
@@ -123,30 +82,39 @@ namespace octane::gui {
     }
   }
   void MainWindow::registerHotkeys() {
-    copyFromClipboardHotkey = new QHotkey(
-      QKeySequence(
-        settings.value(SETTING_KEY_KEYMAP_COPY_FROM_CLIPBOARD).toString()),
-      true,
-      qApp);
-    QObject::connect(copyFromClipboardHotkey, &QHotkey::activated, qApp, [&]() {
-      qDebug() << "Activated 'copyFromClipboardHotkey'";
-      if (clipboardManager) {
-        if (auto data = clipboardManager->copyFromClipboard()) {
-        }
-      }
-    });
-    copyFromSelectionHotkey = new QHotkey(
-      QKeySequence(
-        settings.value(SETTING_KEY_KEYMAP_COPY_FROM_SELECTION).toString()),
-      true,
-      qApp);
-    QObject::connect(copyFromSelectionHotkey, &QHotkey::activated, qApp, [&]() {
-      qDebug() << "Activated 'copyFromSelectionHotkey'";
-      if (clipboardManager) {
-        clipboardManager->copyFromSelection([&](ClipboardData&& data) {
-          qDebug() << data.mime.c_str() << data.data;
+    const auto setCopyFromClipboardHotkey = [=](const QString& hotkey) {
+      delete copyFromClipboardHotkey;
+      copyFromClipboardHotkey = new QHotkey(hotkey, true, qApp);
+      QObject::connect(
+        copyFromClipboardHotkey, &QHotkey::activated, qApp, [=]() {
+          qDebug() << "Activated 'copyFromClipboardHotkey'";
+          if (clipboardManager == nullptr) return;
+          auto data = clipboardManager->copyFromClipboard();
+          if (!data) return;
+          qDebug() << data->mime.c_str() << data->data;
+          // TODO: 実装
+          api.uploadContent(
+            Settings::getAsU64(SETTING_KEY_ROOM_ID),
+            Settings::getAsStr(SETTING_KEY_ROOM_NAME).toStdString(),
+            {});
         });
-      }
-    });
+    };
+    const auto setCopyFromSelectionHotkey = [=](const QString& hotkey) {
+      delete copyFromSelectionHotkey;
+      copyFromSelectionHotkey = new QHotkey(hotkey, true, qApp);
+      QObject::connect(
+        copyFromSelectionHotkey, &QHotkey::activated, qApp, [&]() {
+          qDebug() << "Activated 'copyFromSelectionHotkey'";
+          if (clipboardManager == nullptr) return;
+          clipboardManager->copyFromSelection([&](ClipboardData&& data) {
+            qDebug() << data.mime.c_str() << data.data;
+          });
+        });
+    };
+
+    setCopyFromClipboardHotkey(
+      Settings::getAsStr(SETTING_KEY_KEYMAP_COPY_FROM_CLIPBOARD));
+    setCopyFromClipboardHotkey(
+      Settings::getAsStr(SETTING_KEY_KEYMAP_COPY_FROM_SELECTION));
   }
 } // namespace octane::gui

@@ -1,24 +1,17 @@
 #ifndef OCTANE_GUI_CLIENT_GENERAL_PANEL_H_
 #define OCTANE_GUI_CLIENT_GENERAL_PANEL_H_
 
-#include <QString>
-#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QWidget>
-#include <functional>
+
+#include "./room.h"
 
 namespace octane::gui {
   class GeneralPanel : public QWidget {
   public:
-    GeneralPanel(QWidget* parent,
-                 const QString& roomId,
-                 const std::function<void(const QString&)>& onSettingChanged,
-                 const std::function<QString(const QString&)>& onCreateNewRoom);
+    GeneralPanel(QWidget* parent);
 
   private:
-    void initLayout(
-      const QString& roomId,
-      const std::function<void(const QString&)>& onSettingChanged,
-      const std::function<QString(const QString&)>& onCreateNewRoom);
+    void initLayout();
   };
 } // namespace octane::gui
 

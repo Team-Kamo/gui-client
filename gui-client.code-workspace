@@ -103,7 +103,10 @@
       "xutility": "cpp",
       "qabstractnativeeventfilter": "cpp",
       "qapplication": "cpp",
-      "qdebug": "cpp"
+      "qdebug": "cpp",
+      "qvboxlayout": "cpp",
+      "qmessagebox": "cpp",
+      "qbuttongroup": "cpp"
     }
   },
   "tasks": {

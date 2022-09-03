@@ -16,10 +16,6 @@ namespace octane::gui {
 
     auto form = new QFormLayout();
 
-    auto serverLabel = new QLabel("Server Health: ");
-    auto serverInfo  = new QLabel("Healthy");
-    form->addRow(serverLabel, serverInfo);
-
     auto appLabel = new QLabel("Application: ");
     auto appInfo  = new QLabel(APP_NAME);
     form->addRow(appLabel, appInfo);

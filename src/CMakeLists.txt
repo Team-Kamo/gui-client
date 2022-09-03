@@ -3,9 +3,12 @@ cmake_minimum_required(VERSION 3.21)
 add_executable(
   octane
   cpp/main.cpp
+  cpp/settings.cpp
+  cpp/api.cpp
   cpp/main_window.cpp
   cpp/general_panel.cpp
   cpp/room_config_panel.cpp
+  cpp/key_config_panel.cpp
   cpp/info_panel.cpp
   cpp/clipboard_manager.cpp
 )

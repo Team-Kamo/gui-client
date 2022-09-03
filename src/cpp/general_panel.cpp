@@ -1,40 +1,39 @@
 #include "include/general_panel.h"
 
 #include <QApplication>
+#include <QMessageBox>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QVBoxLayout>
 
+#include "include/api.h"
 #include "include/config.h"
+#include "include/settings.h"
 
 namespace octane::gui {
-  GeneralPanel::GeneralPanel(
-    QWidget* parent,
-    const QString& roomId,
-    const std::function<void(const QString&)>& onSettingChanged,
-    const std::function<QString(const QString&)>& onCreateNewRoom)
-    : QWidget(parent) {
-    initLayout(roomId, onSettingChanged, onCreateNewRoom);
+  GeneralPanel::GeneralPanel(QWidget* parent) : QWidget(parent) {
+    initLayout();
   }
 
-  void GeneralPanel::initLayout(
-    const QString& roomId,
-    const std::function<void(const QString&)>& onSettingChanged,
-    const std::function<QString(const QString&)>& onCreateNewRoom) {
+  void GeneralPanel::initLayout() {
     auto rootLayout = new QVBoxLayout(this);
 
     auto form = new QFormLayout();
 
     auto idLabel = new QLabel("ルームID: ");
     auto idInput = new QLineEdit();
-    idInput->setText(roomId);
+    idInput->setText(Settings::getAsStr(SETTING_KEY_ROOM_ID));
+    Settings::watchAsU64(SETTING_KEY_ROOM_ID, [=](auto roomId) {
+      idInput->setText(QString::number(roomId));
+    });
     form->addRow(idLabel, idInput);
 
     auto saveButton = new QPushButton("保存");
     form->addRow(saveButton);
     QObject::connect(saveButton, &QPushButton::clicked, qApp, [=]() {
-      onSettingChanged(idInput->text());
+      Settings::setAsU64(SETTING_KEY_ROOM_ID, idInput->text().toULongLong());
     });
 
     auto orLabel = new QLabel("またはルームを新規作成");
@@ -49,8 +48,23 @@ namespace octane::gui {
     auto newButton = new QPushButton("新規作成");
     form->addRow(newButton);
     QObject::connect(newButton, &QPushButton::clicked, qApp, [=]() {
-      auto newRoomId = onCreateNewRoom(idInput->text());
-      idInput->setText(newRoomId);
+      auto name = nameInput->text();
+      if (name.size() == 0) {
+        QMessageBox::critical(
+          this, tr("Error"), tr("ルーム名を入力してください。"));
+        return;
+      }
+      auto result = api.createRoom(name.toStdString());
+      if (!result) {
+        QMessageBox::critical(
+          this,
+          tr("Error"),
+          tr((result.err().code + "\n" + result.err().reason).c_str()));
+        return;
+      }
+      Settings::setAsU64(SETTING_KEY_ROOM_ID, result.get());
+      Settings::setAsStr(SETTING_KEY_ROOM_NAME, name);
+      nameInput->setText("");
     });
 
     rootLayout->addLayout(form);

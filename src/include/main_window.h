@@ -26,7 +26,6 @@
 
 namespace octane::gui {
   class MainWindow : public QMainWindow {
-    QSettings settings;
     QHotkey* copyFromSelectionHotkey;
     QHotkey* copyFromClipboardHotkey;
     ClipboardManager* clipboardManager;
@@ -38,7 +37,6 @@ namespace octane::gui {
     ~MainWindow();
 
   private:
-    void initSettings();
     void initLayout();
     void initClipboardManager();
     void registerHotkeys();

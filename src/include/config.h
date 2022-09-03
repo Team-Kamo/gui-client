@@ -15,8 +15,10 @@ namespace octane::gui {
   constexpr auto API_ORIGIN   = "http://localhost:3000";
   constexpr auto API_BASE_URL = "/api/v1";
 
-  constexpr auto SETTING_KEY_ROOM_ID           = "room/id";
-  constexpr auto SETTING_DEFAULT_VALUE_ROOM_ID = "";
+  constexpr auto SETTING_KEY_ROOM_ID             = "room/id";
+  constexpr auto SETTING_DEFAULT_VALUE_ROOM_ID   = 0;
+  constexpr auto SETTING_KEY_ROOM_NAME           = "room/name";
+  constexpr auto SETTING_DEFAULT_VALUE_ROOM_NAME = "";
 
   constexpr auto SETTING_KEY_KEYMAP_COPY_FROM_SELECTION
     = "keymap/copy_from_selection";
