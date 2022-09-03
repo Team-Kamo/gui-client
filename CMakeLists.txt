@@ -20,11 +20,6 @@ elseif(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wno-long-long -pedantic")
 endif()
 
-if(WIN32)
-  set(CMAKE_SHARED_LINKER_FLAGS /MANIFEST:NO)
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
-endif(WIN32)
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -45,5 +40,10 @@ add_subdirectory(${ROOT_DIR}/QHotkey)
 
 include_directories(${ROOT_DIR}/api-client/src/include)
 add_subdirectory(${ROOT_DIR}/api-client)
+
+if(WIN32)
+  set(CMAKE_SHARED_LINKER_FLAGS /MANIFEST:NO)
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:WINDOWS")
+endif(WIN32)
 
 add_subdirectory(${SRC_DIR})

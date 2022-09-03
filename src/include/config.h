@@ -12,14 +12,29 @@ namespace octane::gui {
   constexpr auto COPYRIGHT    = "© 2022 Team Kamo";
 
   constexpr auto API_TOKEN    = "mock";
-  constexpr auto API_ORIGIN   = "http://localhost:300";
+  constexpr auto API_ORIGIN   = "http://localhost:3000";
   constexpr auto API_BASE_URL = "/api/v1";
 
   constexpr auto SETTING_KEY_ROOM_ID           = "room/id";
   constexpr auto SETTING_DEFAULT_VALUE_ROOM_ID = "";
 
-  constexpr auto SETTING_KEY_KEYMAP_COPY           = "keymap/copy";
-  constexpr auto SETTING_DEFAULT_VALUE_KEYMAP_COPY = "Ctrl+Alt+C";
+  constexpr auto SETTING_KEY_KEYMAP_COPY_FROM_SELECTION
+    = "keymap/copy_from_selection";
+  constexpr auto SETTING_DEFAULT_VALUE_KEYMAP_COPY_FROM_SELECTION
+    = "Ctrl+Alt+C";
+
+  constexpr auto SETTING_KEY_KEYMAP_COPY_FROM_CLIPBOARD
+    = "keymap/copy_from_clipboard";
+  constexpr auto SETTING_DEFAULT_VALUE_KEYMAP_COPY_FROM_CLIPBOARD
+    = "Ctrl+Alt+B";
+
+  constexpr auto SETTING_KEY_KEYMAP_PASTE_TO_SELECTION
+    = "keymap/paste_to_selection";
+  constexpr auto SETTING_DEFAULT_VALUE_KEYMAP_PASTE_TO_SELECTION = "Ctrl+Alt+V";
+
+  constexpr auto SETTING_KEY_KEYMAP_PASTE_TO_CLIPBOARD
+    = "keymap/paste_to_clipboard";
+  constexpr auto SETTING_DEFAULT_VALUE_KEYMAP_PASTE_TO_CLIPBOARD = "Ctrl+Alt+G";
 } // namespace octane::gui
 
 #endif // OCTANE_GUI_CLIENT_CONFIG_H_

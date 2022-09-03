@@ -22,10 +22,14 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QWidget>
 
+#include "./clipboard_manager.h"
+
 namespace octane::gui {
   class MainWindow : public QMainWindow {
     QSettings settings;
-    QHotkey hotkey;
+    QHotkey* copyFromSelectionHotkey;
+    QHotkey* copyFromClipboardHotkey;
+    ClipboardManager* clipboardManager;
 
     ApiClient apiClient;
 
@@ -36,6 +40,7 @@ namespace octane::gui {
   private:
     void initSettings();
     void initLayout();
+    void initClipboardManager();
     void registerHotkeys();
   };
 } // namespace octane::gui
