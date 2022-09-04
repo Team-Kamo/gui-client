@@ -19,14 +19,15 @@ namespace octane::gui::windows {
     virtual std::optional<ClipboardData> copyFromClipboard() override;
     virtual void copyFromSelection(
       const std::function<void(ClipboardData &&)> &callback) override;
-    virtual void pasteToClipboard() override;
-    virtual void pasteToSelection() override;
+    virtual void pasteToClipboard(const ClipboardData &data) override;
+    virtual void pasteToSelection(const ClipboardData &data) override;
     virtual bool nativeEventFilter(const QByteArray &eventType,
                                    void *message,
                                    qintptr *result) override;
 
   private:
     std::optional<ClipboardData> getClipboardData();
+    void setClipboardData(const ClipboardData &data);
   };
 }; // namespace octane::gui::windows
 

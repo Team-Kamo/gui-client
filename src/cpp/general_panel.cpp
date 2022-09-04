@@ -1,7 +1,6 @@
 #include "include/general_panel.h"
 
 #include <QApplication>
-#include <QMessageBox>
 #include <QtWidgets/QFormLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
@@ -10,6 +9,7 @@
 
 #include "include/api.h"
 #include "include/config.h"
+#include "include/message_box.h"
 #include "include/settings.h"
 
 namespace octane::gui {
@@ -50,16 +50,12 @@ namespace octane::gui {
     QObject::connect(newButton, &QPushButton::clicked, qApp, [=]() {
       auto name = nameInput->text();
       if (name.size() == 0) {
-        QMessageBox::critical(
-          this, tr("Error"), tr("ルーム名を入力してください。"));
+        openCritical(this, tr("ルーム名を入力してください。"));
         return;
       }
-      auto result = api.createRoom(name.toStdString());
+      auto result = Api::createRoom(name);
       if (!result) {
-        QMessageBox::critical(
-          this,
-          tr("Error"),
-          tr((result.err().code + "\n" + result.err().reason).c_str()));
+        openCritical(this, result.err());
         return;
       }
       Settings::setAsU64(SETTING_KEY_ROOM_ID, result.get());

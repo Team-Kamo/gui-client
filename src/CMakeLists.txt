@@ -5,6 +5,8 @@ add_executable(
   cpp/main.cpp
   cpp/settings.cpp
   cpp/api.cpp
+  cpp/device_info.cpp
+  cpp/message_box.cpp
   cpp/main_window.cpp
   cpp/general_panel.cpp
   cpp/room_config_panel.cpp

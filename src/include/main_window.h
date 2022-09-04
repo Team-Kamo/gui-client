@@ -28,6 +28,8 @@ namespace octane::gui {
   class MainWindow : public QMainWindow {
     QHotkey* copyFromSelectionHotkey;
     QHotkey* copyFromClipboardHotkey;
+    QHotkey* pasteToSelectionHotkey;
+    QHotkey* pasteToClipboardHotkey;
     ClipboardManager* clipboardManager;
 
     ApiClient apiClient;

@@ -50,8 +50,41 @@ namespace octane::gui::windows {
 
     copyFromSelectionCallback = callback;
   }
-  void WinClipboardManager::pasteToClipboard() {}
-  void WinClipboardManager::pasteToSelection() {}
+  void WinClipboardManager::pasteToClipboard(const ClipboardData &data) {
+    setClipboardData(data);
+  }
+  void WinClipboardManager::pasteToSelection(const ClipboardData &data) {
+    setClipboardData(data);
+
+    constexpr int inputSize = 6;
+    INPUT inputs[inputSize];
+    ZeroMemory(inputs, sizeof(inputs));
+
+    inputs[0].ki.wVk     = VK_MENU;
+    inputs[0].ki.dwFlags = KEYEVENTF_KEYUP;
+
+    inputs[1].ki.wVk = VK_CONTROL;
+
+    inputs[2].ki.wVk = 'V';
+
+    inputs[3].ki.wVk     = VK_CONTROL;
+    inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
+
+    inputs[4].ki.wVk     = 'V';
+    inputs[4].ki.dwFlags = KEYEVENTF_KEYUP;
+
+    inputs[5].ki.wVk = VK_MENU;
+
+    for (auto &input : inputs) {
+      input.type     = INPUT_KEYBOARD;
+      input.ki.wScan = MapVirtualKey(input.ki.wVk, MAPVK_VK_TO_VSC);
+    }
+
+    if (SendInput(inputSize, inputs, sizeof(INPUT)) != inputSize) {
+      qDebug() << HRESULT_FROM_WIN32(GetLastError());
+      return;
+    }
+  }
   bool WinClipboardManager::nativeEventFilter(const QByteArray &eventType,
                                               void *message,
                                               qintptr *result) {
@@ -105,4 +138,20 @@ namespace octane::gui::windows {
 
     return std::nullopt;
   }
+
+  void WinClipboardManager::setClipboardData(const ClipboardData &data) {
+    auto clipboard = QApplication::clipboard();
+
+    if (data.mime == "text/html") {
+      auto mimeData = new QMimeData();
+      mimeData->setHtml(data.data);
+      clipboard->setMimeData(mimeData);
+    } else if (data.mime.starts_with("image/")) {
+      QImage image;
+      image.loadFromData(data.data);
+      clipboard->setImage(image);
+    } else {
+      clipboard->setText(data.data);
+    }
+  };
 } // namespace octane::gui::windows

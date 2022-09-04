@@ -19,8 +19,8 @@ namespace octane::gui {
     virtual void copyFromSelection(
       const std::function<void(ClipboardData&&)>& callback)
       = 0;
-    virtual void pasteToClipboard() = 0;
-    virtual void pasteToSelection() = 0;
+    virtual void pasteToClipboard(const ClipboardData& data) = 0;
+    virtual void pasteToSelection(const ClipboardData& data) = 0;
   };
 } // namespace octane::gui
 

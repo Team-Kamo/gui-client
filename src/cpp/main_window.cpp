@@ -14,7 +14,6 @@
 #include "include/main_window.h"
 
 #include <QDebug>
-#include <QMessageBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QTabWidget>
 
@@ -23,6 +22,7 @@
 #include "include/general_panel.h"
 #include "include/info_panel.h"
 #include "include/key_config_panel.h"
+#include "include/message_box.h"
 #include "include/room_config_panel.h"
 #include "include/settings.h"
 
@@ -36,13 +36,12 @@ namespace octane::gui {
       apiClient(API_TOKEN, API_ORIGIN, API_BASE_URL),
       copyFromSelectionHotkey(nullptr),
       copyFromClipboardHotkey(nullptr),
+      pasteToSelectionHotkey(nullptr),
+      pasteToClipboardHotkey(nullptr),
       clipboardManager(nullptr) {
     auto result = apiClient.init();
     if (!result) {
-      QMessageBox::critical(
-        this,
-        tr("Error"),
-        tr((result.err().code + "\n" + result.err().reason).c_str()));
+      openCritical(this, result.err());
       exit(1);
       return;
     }
@@ -92,29 +91,73 @@ namespace octane::gui {
           auto data = clipboardManager->copyFromClipboard();
           if (!data) return;
           qDebug() << data->mime.c_str() << data->data;
-          // TODO: 実装
-          api.uploadContent(
-            Settings::getAsU64(SETTING_KEY_ROOM_ID),
-            Settings::getAsStr(SETTING_KEY_ROOM_NAME).toStdString(),
-            {});
+          Api::uploadAsClipboard(data.value());
         });
     };
     const auto setCopyFromSelectionHotkey = [=](const QString& hotkey) {
       delete copyFromSelectionHotkey;
       copyFromSelectionHotkey = new QHotkey(hotkey, true, qApp);
       QObject::connect(
-        copyFromSelectionHotkey, &QHotkey::activated, qApp, [&]() {
+        copyFromSelectionHotkey, &QHotkey::activated, qApp, [=]() {
           qDebug() << "Activated 'copyFromSelectionHotkey'";
           if (clipboardManager == nullptr) return;
           clipboardManager->copyFromSelection([&](ClipboardData&& data) {
             qDebug() << data.mime.c_str() << data.data;
+            Api::uploadAsClipboard(data);
           });
+        });
+    };
+    const auto setPasteToClipboardHotkey = [=](const QString& hotkey) {
+      delete pasteToClipboardHotkey;
+      pasteToClipboardHotkey = new QHotkey(hotkey, true, qApp);
+      QObject::connect(
+        pasteToClipboardHotkey, &QHotkey::activated, qApp, [=]() {
+          qDebug() << "Activated 'pasteToClipboardHotkey'";
+          if (clipboardManager == nullptr) return;
+          auto result = Api::download();
+          if (!result) {
+            openCritical(this, result.err());
+            return;
+          }
+          clipboardManager->pasteToClipboard(result.get());
+        });
+    };
+    const auto setPasteToSelectionHotkey = [=](const QString& hotkey) {
+      delete pasteToSelectionHotkey;
+      pasteToSelectionHotkey = new QHotkey(hotkey, true, qApp);
+      QObject::connect(
+        pasteToSelectionHotkey, &QHotkey::activated, qApp, [=]() {
+          qDebug() << "Activated 'pasteToSelectionHotkey'";
+          if (clipboardManager == nullptr) return;
+          auto result = Api::download();
+          if (!result) {
+            openCritical(this, result.err());
+            return;
+          }
+          clipboardManager->pasteToSelection(result.get());
         });
     };
 
     setCopyFromClipboardHotkey(
       Settings::getAsStr(SETTING_KEY_KEYMAP_COPY_FROM_CLIPBOARD));
-    setCopyFromClipboardHotkey(
+    setCopyFromSelectionHotkey(
       Settings::getAsStr(SETTING_KEY_KEYMAP_COPY_FROM_SELECTION));
+    setPasteToClipboardHotkey(
+      Settings::getAsStr(SETTING_KEY_KEYMAP_PASTE_TO_CLIPBOARD));
+    setPasteToSelectionHotkey(
+      Settings::getAsStr(SETTING_KEY_KEYMAP_PASTE_TO_SELECTION));
+
+    Settings::watchAsStr(
+      SETTING_KEY_KEYMAP_COPY_FROM_CLIPBOARD,
+      [=](const auto& hotkey) { setCopyFromClipboardHotkey(hotkey); });
+    Settings::watchAsStr(
+      SETTING_KEY_KEYMAP_COPY_FROM_SELECTION,
+      [=](const auto& hotkey) { setCopyFromSelectionHotkey(hotkey); });
+    Settings::watchAsStr(
+      SETTING_KEY_KEYMAP_PASTE_TO_CLIPBOARD,
+      [=](const auto& hotkey) { setPasteToClipboardHotkey(hotkey); });
+    Settings::watchAsStr(
+      SETTING_KEY_KEYMAP_PASTE_TO_SELECTION,
+      [=](const auto& hotkey) { setPasteToSelectionHotkey(hotkey); });
   }
 } // namespace octane::gui
