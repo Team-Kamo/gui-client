@@ -33,7 +33,7 @@ int WinMain([[maybe_unused]] HINSTANCE hInst,
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
-  octane::MainWindow mainWindow(&app);
+  octane::gui::MainWindow mainWindow(&app);
   mainWindow.show();
   return app.exec();
 }
