@@ -8,4 +8,4 @@ add_library(
 
 target_include_directories(octane_gui_windows INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(octane_gui_windows PRIVATE Qt6::Core Gdiplus Qt6::Widgets)
+target_link_libraries(octane_gui_windows PRIVATE Qt6::Core Qt6::Widgets)

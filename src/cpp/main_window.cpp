@@ -49,6 +49,19 @@ namespace octane::gui {
     initLayout();
     initClipboardManager();
     registerHotkeys();
+
+    const auto connect = [=](uint64_t id) {
+      if (id) {
+        auto result = Api::connect(id);
+        if (!result && result.err().code != "ERR_DUP_DEVICE") {
+          openCritical(this, result.err());
+        }
+      }
+    };
+    Settings::watchAsU64(SETTING_KEY_ROOM_ID, connect);
+    connect(Settings::getAsU64(SETTING_KEY_ROOM_ID));
+
+    qDebug() << "Initialize";
   }
   MainWindow::~MainWindow() {}
 

@@ -18,6 +18,7 @@ namespace octane::gui {
     static Api instance;
 
   public:
+    static Result<_, ErrorResponse> connect(std::uint64_t id);
     static Result<std::uint64_t, ErrorResponse> createRoom(const QString& name);
     static void uploadAsClipboard(const ClipboardData& data);
     static Result<ClipboardData, ErrorResponse> download();

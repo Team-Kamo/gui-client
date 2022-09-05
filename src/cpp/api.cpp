@@ -5,18 +5,26 @@
 
 #include "include/config.h"
 #include "include/device_info.h"
+#include "include/message_box.h"
 #include "include/settings.h"
 
 namespace octane::gui {
   Api Api::instance;
   Api::Api() : apiClient() {}
+  Result<_, ErrorResponse> Api::connect(std::uint64_t id) {
+    auto result = instance.apiClient.connectRoom(id, getDeviceName());
+    if (!result) {
+      return error(result.err());
+    }
+    return ok();
+  }
   Result<std::uint64_t, ErrorResponse> Api::createRoom(const QString& name) {
     auto createResult = instance.apiClient.createRoom(name.toStdString());
     if (!createResult) {
       return error(createResult.err());
     }
     auto id            = createResult.get().id;
-    auto connectResult = instance.apiClient.connectRoom(id, name.toStdString());
+    auto connectResult = connect(id);
     if (!connectResult) {
       return error(connectResult.err());
     }
@@ -25,15 +33,18 @@ namespace octane::gui {
   void Api::uploadAsClipboard(const ClipboardData& data) {
     std::vector<std::uint8_t> uploadData;
     uploadData.assign(data.data.begin(), data.data.end());
-    instance.apiClient.uploadContent(
+    auto result = instance.apiClient.uploadContent(
       Content{
         .contentStatus
         = ContentStatus{ .device    = getDeviceName(),
                          .timestamp = (std::uint64_t)std::time(nullptr),
-                         .type      = ContentType::Clipboard,
+                         .type      = ContentType::File,
                          .mime = data.mime, },
         .data = uploadData,
       });
+    if (!result) {
+      openCritical(nullptr, result.err());
+    }
   }
   Result<ClipboardData, ErrorResponse> Api::download() {
     auto result = instance.apiClient.getContent();
