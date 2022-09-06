@@ -1,7 +1,24 @@
 cmake_minimum_required(VERSION 3.21)
 
+if(WIN32)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/windows)
+  set(ENV_DEP_LIB octane_gui_windows)
+elseif(APPLE)
+  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/darwin)
+  set(ENV_DEP_LIB octane_gui_darwin)
+  set(MACOSX_BUNDLE_ICON_FILE icon.icns)
+  set(app_icon_macos ${CMAKE_CURRENT_SOURCE_DIR}/assets/images/icon.icns)
+  set_source_files_properties(
+    ${app_icon_macos}
+    PROPERTIES
+    MACOSX_PACKAGE_LOCATION "Resources"
+  )
+endif()
+
 qt_add_executable(
   octane
+  MACOSX_BUNDLE
+  ${app_icon_macos}
   assets/assets.qrc
   cpp/main.cpp
   cpp/settings.cpp
@@ -20,13 +37,5 @@ qt_add_executable(
 )
 
 target_include_directories(octane PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
-
-if(WIN32)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/windows)
-  set(ENV_DEP_LIB octane_gui_windows)
-elseif(APPLE)
-  add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/darwin)
-  set(ENV_DEP_LIB octane_gui_darwin)
-endif()
 
 target_link_libraries(octane PRIVATE Qt6::Widgets qhotkey octane_api_client ${ENV_DEP_LIB})
