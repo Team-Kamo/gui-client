@@ -14,6 +14,7 @@
 #include "include/main_window.h"
 
 #include <QDebug>
+#include <QIcon>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QTabWidget>
 
@@ -25,6 +26,7 @@
 #include "include/message_box.h"
 #include "include/room_config_panel.h"
 #include "include/settings.h"
+#include "include/task_tray.h"
 
 #if defined(Q_OS_WIN)
 #include "windows/include/win_clipboard_manager.h"
@@ -45,10 +47,15 @@ namespace octane::gui {
       exit(1);
       return;
     }
-    this->setWindowTitle(APP_NAME);
+    setWindowTitle(APP_NAME);
+    setWindowIcon(QIcon(":/images/icon.png"));
+    setAttribute(Qt::WA_QuitOnClose, false);
     initLayout();
     initClipboardManager();
     registerHotkeys();
+
+    auto taskTray = new TaskTray(this, [=]() { show(); });
+    taskTray->show();
 
     const auto connect = [=](uint64_t id) {
       if (id) {

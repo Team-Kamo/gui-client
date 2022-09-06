@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 
-add_executable(
+qt_add_executable(
   octane
+  assets/assets.qrc
   cpp/main.cpp
   cpp/settings.cpp
   cpp/tmp_dir.cpp
@@ -14,6 +15,7 @@ add_executable(
   cpp/key_config_panel.cpp
   cpp/info_panel.cpp
   cpp/clipboard_manager.cpp
+  cpp/task_tray.cpp
 )
 
 target_include_directories(octane PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
