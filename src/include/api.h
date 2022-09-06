@@ -20,7 +20,7 @@ namespace octane::gui {
   public:
     static Result<_, ErrorResponse> connect(std::uint64_t id);
     static Result<std::uint64_t, ErrorResponse> createRoom(const QString& name);
-    static void uploadAsClipboard(const ClipboardData& data);
+    static void upload(const ClipboardData& data);
     static Result<ClipboardData, ErrorResponse> download();
   };
 } // namespace octane::gui

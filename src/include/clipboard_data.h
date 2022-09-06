@@ -3,12 +3,20 @@
 
 #include <QBuffer>
 #include <string>
+#include <unordered_map>
+#include <variant>
 #include <vector>
 
 namespace octane::gui {
-  struct ClipboardData {
+  struct UniData {
     std::string mime;
     QByteArray data;
+  };
+  struct MultiData {
+    std::unordered_map<std::string, QByteArray> files;
+  };
+  struct ClipboardData {
+    std::variant<UniData, MultiData> data;
   };
 } // namespace octane::gui
 

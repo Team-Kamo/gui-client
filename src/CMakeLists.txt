@@ -4,6 +4,7 @@ add_executable(
   octane
   cpp/main.cpp
   cpp/settings.cpp
+  cpp/tmp_dir.cpp
   cpp/api.cpp
   cpp/device_info.cpp
   cpp/message_box.cpp

@@ -103,8 +103,7 @@ namespace octane::gui {
           if (clipboardManager == nullptr) return;
           auto data = clipboardManager->copyFromClipboard();
           if (!data) return;
-          qDebug() << data->mime.c_str() << data->data;
-          Api::uploadAsClipboard(data.value());
+          Api::upload(data.value());
         });
     };
     const auto setCopyFromSelectionHotkey = [=](const QString& hotkey) {
@@ -114,10 +113,8 @@ namespace octane::gui {
         copyFromSelectionHotkey, &QHotkey::activated, qApp, [=]() {
           qDebug() << "Activated 'copyFromSelectionHotkey'";
           if (clipboardManager == nullptr) return;
-          clipboardManager->copyFromSelection([&](ClipboardData&& data) {
-            qDebug() << data.mime.c_str() << data.data;
-            Api::uploadAsClipboard(data);
-          });
+          clipboardManager->copyFromSelection(
+            [&](ClipboardData&& data) { Api::upload(data); });
         });
     };
     const auto setPasteToClipboardHotkey = [=](const QString& hotkey) {

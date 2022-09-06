@@ -106,7 +106,12 @@
       "qdebug": "cpp",
       "qvboxlayout": "cpp",
       "qmessagebox": "cpp",
-      "qbuttongroup": "cpp"
+      "qbuttongroup": "cpp",
+      "filesystem": "cpp",
+      "qurl": "cpp",
+      "qtemporarydir": "cpp",
+      "*.clang-format": "cpp",
+      "*.rh": "cpp"
     }
   },
   "tasks": {

@@ -1,5 +1,6 @@
 #include "include/api.h"
 
+#include <QBuffer>
 #include <ctime>
 #include <vector>
 
@@ -30,20 +31,51 @@ namespace octane::gui {
     }
     return ok(id);
   }
-  void Api::uploadAsClipboard(const ClipboardData& data) {
-    std::vector<std::uint8_t> uploadData;
-    uploadData.assign(data.data.begin(), data.data.end());
-    auto result = instance.apiClient.uploadContent(
+  void Api::upload(const ClipboardData& data) {
+    if (std::holds_alternative<UniData>(data.data)) {
+      const auto& uniData = std::get<UniData>(data.data);
+      ContentType contentType;
+      if (uniData.mime.find("text/") == 0) {
+        contentType = ContentType::Clipboard;
+      } else {
+        contentType = ContentType::File;
+      }
+      auto result = instance.apiClient.uploadContent(
       Content{
-        .contentStatus
-        = ContentStatus{ .device    = getDeviceName(),
-                         .timestamp = (std::uint64_t)std::time(nullptr),
-                         .type      = ContentType::File,
-                         .mime = data.mime, },
-        .data = uploadData,
+        .contentStatus = ContentStatus{
+          .device    = getDeviceName(),
+          .timestamp = (std::uint64_t)std::time(nullptr),
+          .type      = contentType,
+          .mime      = uniData.mime,
+        },
+        .data = std::vector<std::uint8_t>(uniData.data.begin(),
+                                           uniData.data.end()),
       });
-    if (!result) {
-      openCritical(nullptr, result.err());
+      if (!result) {
+        openCritical(nullptr, result.err());
+      }
+    } else {
+      const auto& multiData = std::get<MultiData>(data.data);
+      std::vector<FileInfo> uploadData;
+      uploadData.reserve(multiData.files.size());
+      for (const auto& file : multiData.files) {
+        uploadData.push_back(FileInfo{
+          .filename = file.first,
+          .data
+          = std::vector<std::uint8_t>(file.second.begin(), file.second.end()),
+        });
+      }
+      auto result = instance.apiClient.uploadContent(
+        Content{
+          .contentStatus = ContentStatus{
+            .device = getDeviceName(),
+            .timestamp = (std::uint64_t)std::time(nullptr),
+            .type = ContentType::MultiFile,
+            .mime = "",
+          },
+          .data = std::move(uploadData),
+        }
+      );
     }
   }
   Result<ClipboardData, ErrorResponse> Api::download() {
@@ -55,18 +87,35 @@ namespace octane::gui {
     auto& data   = result.get().data;
     auto& status = result.get().contentStatus;
 
-    QByteArray qData;
     if (std::holds_alternative<std::string>(data)) {
-      qData = QByteArray::fromStdString(std::get<std::string>(data));
+      return ok(ClipboardData{
+        .data = UniData{ .mime = status.mime,
+                         .data = QByteArray::fromStdString(
+                           std::get<std::string>(data)), },
+      });
+    } else if (std::holds_alternative<std::vector<std::uint8_t>>(data)) {
+      const auto& vec = std::get<std::vector<std::uint8_t>>(data);
+      QByteArray qData;
+      qData.reserve(vec.size());
+      std::copy(vec.begin(), vec.end(), std::back_inserter(qData));
+      return ok(ClipboardData{
+        .data = UniData{
+          .mime = status.mime,
+          .data = std::move(qData),
+        },
+      });
     } else {
-      auto& vec = std::get<std::vector<std::uint8_t>>(data);
-      qData.resize(vec.size());
-      std::copy(vec.begin(), vec.end(), qData.begin());
+      const auto& files = std::get<std::vector<FileInfo>>(data);
+      MultiData multiData;
+      for (const auto& file : files) {
+        multiData.files[file.filename].reserve(file.data.size());
+        std::copy(file.data.begin(),
+                  file.data.end(),
+                  std::back_inserter(multiData.files[file.filename]));
+      }
+      return ok(ClipboardData{
+        .data = std::move(multiData),
+      });
     }
-
-    return ok(ClipboardData{
-      .mime = status.mime,
-      .data = std::move(qData),
-    });
   }
 } // namespace octane::gui

@@ -24,10 +24,6 @@ namespace octane::gui::windows {
     virtual bool nativeEventFilter(const QByteArray &eventType,
                                    void *message,
                                    qintptr *result) override;
-
-  private:
-    std::optional<ClipboardData> getClipboardData();
-    void setClipboardData(const ClipboardData &data);
   };
 }; // namespace octane::gui::windows
 
