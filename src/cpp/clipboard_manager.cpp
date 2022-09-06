@@ -12,7 +12,21 @@
 #include <QUrl>
 #include <cassert>
 
+#if defined(Q_OS_WIN)
+#include "windows/include/win_clipboard_manager.h"
+#elif defined(Q_OS_MAC)
+#include "darwin/include/osx_clipboard_manager.h"
+#endif
+
 namespace octane::gui {
+  ClipboardManager* ClipboardManager::getSystemClipboardManager() {
+#if defined(Q_OS_WIN)
+    return new windows::WinClipboardManager();
+#elif defined(Q_OS_MAC)
+    return new darwin::OsxClipboardManager();
+#endif
+    return nullptr;
+  }
   ClipboardManager::~ClipboardManager() {}
   std::optional<ClipboardData> ClipboardManager::getClipboardData() {
     auto clipboard = QApplication::clipboard();

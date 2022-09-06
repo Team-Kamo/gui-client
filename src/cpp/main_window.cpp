@@ -60,8 +60,13 @@ namespace octane::gui {
     const auto connect = [=](uint64_t id) {
       if (id) {
         auto result = Api::connect(id);
-        if (!result && result.err().code != "ERR_DUP_DEVICE") {
-          openCritical(this, result.err());
+        if (!result) {
+          if (result.err().code == "ERR_DUP_DEVICE") {
+            qDebug() << QString::fromStdString(result.err().code) << " "
+                    << QString::fromStdString(result.err().reason);
+          } else {
+            openCritical(this, result.err());
+          }
         }
       }
     };
@@ -93,9 +98,7 @@ namespace octane::gui {
     this->setCentralWidget(centralWidget);
   }
   void MainWindow::initClipboardManager() {
-#if defined(Q_OS_WIN)
-    clipboardManager = new windows::WinClipboardManager();
-#endif
+    clipboardManager = ClipboardManager::getSystemClipboardManager();
     if (clipboardManager) {
       qApp->installNativeEventFilter(clipboardManager);
     }

@@ -21,13 +21,7 @@ namespace octane::gui {
       });
 
     auto quit = new QAction(tr("&Quit"), parent);
-    QObject::connect(quit, &QAction::triggered, qApp, [=]() {
-      if (QMessageBox::question(
-            parent, tr("Quit"), tr("Are you sure you want to quit?"))
-          == QMessageBox::Yes) {
-        qApp->quit();
-      }
-    });
+    QObject::connect(quit, &QAction::triggered, qApp, [=]() { qApp->quit(); });
 
     auto menu = new QMenu(parent);
     menu->addAction(quit);

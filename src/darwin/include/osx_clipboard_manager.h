@@ -10,8 +10,23 @@
 
 namespace octane::gui::darwin {
   class OsxClipboardManager : public ClipboardManager {
-    std::optional<std::function<void(ClipboardData &&)>>
-      copyFromSelectionCallback;
+    class Observer : QObject {
+      OsxClipboardManager *parent;
+      int timerId;
+      std::optional<ClipboardData> oldData;
+      std::function<void(ClipboardData &&)> copyFromSelectionCallback;
+
+    public:
+      Observer(
+        OsxClipboardManager *parent,
+        const std::function<void(ClipboardData &&)> &copyFromSelectionCallback);
+      void destroy();
+
+    protected:
+      void timerEvent(QTimerEvent *e);
+    };
+
+    Observer *observer;
 
   public:
     OsxClipboardManager();
@@ -24,11 +39,7 @@ namespace octane::gui::darwin {
     virtual bool nativeEventFilter(const QByteArray &eventType,
                                    void *message,
                                    qintptr *result) override;
-
-  private:
-    std::optional<ClipboardData> getClipboardData();
-    void setClipboardData(const ClipboardData &data);
   };
-}
+} // namespace octane::gui::darwin
 
 #endif // OCTANE_GUI_DARWIN_OSX_CLIPBOARD_MANAGER_H_

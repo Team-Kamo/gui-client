@@ -18,6 +18,12 @@ namespace octane::gui {
   struct ClipboardData {
     std::variant<UniData, MultiData> data;
   };
+  bool operator==(const UniData& lhs, const UniData& rhs);
+  bool operator!=(const UniData& lhs, const UniData& rhs);
+  bool operator==(const MultiData& lhs, const MultiData& rhs);
+  bool operator!=(const MultiData& lhs, const MultiData& rhs);
+  bool operator==(const ClipboardData& lhs, const ClipboardData& rhs);
+  bool operator!=(const ClipboardData& lhs, const ClipboardData& rhs);
 } // namespace octane::gui
 
 #endif // OCTANE_GUI_CLIENT_CLIPBOARD_DATA_H_

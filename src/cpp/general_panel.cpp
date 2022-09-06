@@ -21,6 +21,7 @@ namespace octane::gui {
     auto rootLayout = new QVBoxLayout(this);
 
     auto form = new QFormLayout();
+    form->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
 
     auto idLabel = new QLabel("ルームID: ");
     auto idInput = new QLineEdit();

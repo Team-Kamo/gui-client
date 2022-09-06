@@ -18,6 +18,8 @@ namespace octane::gui {
    */
   class ClipboardManager : public QAbstractNativeEventFilter {
   public:
+    static ClipboardManager* getSystemClipboardManager();
+
     virtual ~ClipboardManager() noexcept                     = 0;
     virtual std::optional<ClipboardData> copyFromClipboard() = 0;
     virtual void copyFromSelection(

@@ -1,10 +1,11 @@
 #include "include/win_clipboard_manager.h"
 
 #include <Windows.h>
-#include "../../include/tmp_dir.h"
 #include <tchar.h>
 
 #include <QDebug>
+
+#include "../../include/tmp_dir.h"
 
 namespace octane::gui::windows {
   WinClipboardManager::WinClipboardManager() : ClipboardManager() {}
