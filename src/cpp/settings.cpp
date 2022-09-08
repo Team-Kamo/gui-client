@@ -5,6 +5,20 @@
 namespace octane::gui {
   Settings Settings::instance;
   Settings::Settings() : settings(ORGANIZATION, APP_NAME), cbCount(0) {
+    if (!settings.contains(SETTING_KEY_API_TOKEN)) {
+      settings.setValue(SETTING_KEY_API_TOKEN, SETTING_DEFAULT_VALUE_API_TOKEN);
+    }
+
+    if (!settings.contains(SETTING_KEY_API_ORIGIN)) {
+      settings.setValue(SETTING_KEY_API_ORIGIN,
+                        SETTING_DEFAULT_VALUE_API_ORIGIN);
+    }
+
+    if (!settings.contains(SETTING_KEY_API_BASE_URL)) {
+      settings.setValue(SETTING_KEY_API_BASE_URL,
+                        SETTING_DEFAULT_VALUE_API_BASE_URL);
+    }
+
     if (!settings.contains(SETTING_KEY_ROOM_ID)) {
       settings.setValue(SETTING_KEY_ROOM_ID, SETTING_DEFAULT_VALUE_ROOM_ID);
     }

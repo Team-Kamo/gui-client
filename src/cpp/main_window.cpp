@@ -25,6 +25,7 @@
 #include "include/key_config_panel.h"
 #include "include/message_box.h"
 #include "include/room_config_panel.h"
+#include "include/server_panel.h"
 #include "include/settings.h"
 #include "include/task_tray.h"
 
@@ -35,18 +36,18 @@
 namespace octane::gui {
   MainWindow::MainWindow(QApplication* app, QWidget* parent)
     : QMainWindow(parent),
-      apiClient(API_TOKEN, API_ORIGIN, API_BASE_URL),
       copyFromSelectionHotkey(nullptr),
       copyFromClipboardHotkey(nullptr),
       pasteToSelectionHotkey(nullptr),
       pasteToClipboardHotkey(nullptr),
       clipboardManager(nullptr) {
-    auto result = apiClient.init();
+    auto result = Api::init(Settings::getAsStr(SETTING_KEY_API_TOKEN),
+                            Settings::getAsStr(SETTING_KEY_API_ORIGIN),
+                            Settings::getAsStr(SETTING_KEY_API_BASE_URL));
     if (!result) {
       openCritical(this, result.err());
-      exit(1);
-      return;
     }
+
     setWindowTitle(APP_NAME);
     setWindowIcon(QIcon(":/images/icon.png"));
     setAttribute(Qt::WA_QuitOnClose, false);
@@ -63,7 +64,7 @@ namespace octane::gui {
         if (!result) {
           if (result.err().code == "ERR_DUP_DEVICE") {
             qDebug() << QString::fromStdString(result.err().code) << " "
-                    << QString::fromStdString(result.err().reason);
+                     << QString::fromStdString(result.err().reason);
           } else {
             openCritical(this, result.err());
           }
@@ -86,11 +87,13 @@ namespace octane::gui {
     auto generalPanel    = new GeneralPanel(tabWidget);
     auto roomConfigPanel = new RoomConfigPanel(tabWidget);
     auto keyConfigPanel  = new KeyConfigPanel(tabWidget);
+    auto serverPanel     = new ServerPanel(centralWidget);
     auto infoPanel       = new InfoPanel(tabWidget);
 
     tabWidget->addTab(generalPanel, "一般");
     tabWidget->addTab(roomConfigPanel, "ルーム設定");
     tabWidget->addTab(keyConfigPanel, "キー設定");
+    tabWidget->addTab(serverPanel, "サーバー設定");
     tabWidget->addTab(infoPanel, "情報");
 
     rootLayout->addWidget(tabWidget);
@@ -113,7 +116,10 @@ namespace octane::gui {
           if (clipboardManager == nullptr) return;
           auto data = clipboardManager->copyFromClipboard();
           if (!data) return;
-          Api::upload(data.value());
+          auto result = Api::upload(data.value());
+          if (!result) {
+            openCritical(this, result.err());
+          }
         });
     };
     const auto setCopyFromSelectionHotkey = [=](const QString& hotkey) {
@@ -123,8 +129,12 @@ namespace octane::gui {
         copyFromSelectionHotkey, &QHotkey::activated, qApp, [=]() {
           qDebug() << "Activated 'copyFromSelectionHotkey'";
           if (clipboardManager == nullptr) return;
-          clipboardManager->copyFromSelection(
-            [&](ClipboardData&& data) { Api::upload(data); });
+          clipboardManager->copyFromSelection([&](ClipboardData&& data) {
+            auto result = Api::upload(data);
+            if (!result) {
+              openCritical(this, result.err());
+            }
+          });
         });
     };
     const auto setPasteToClipboardHotkey = [=](const QString& hotkey) {

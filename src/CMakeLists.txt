@@ -30,6 +30,7 @@ qt_add_executable(
   cpp/general_panel.cpp
   cpp/room_config_panel.cpp
   cpp/key_config_panel.cpp
+  cpp/server_panel.cpp
   cpp/info_panel.cpp
   cpp/clipboard_data.cpp
   cpp/clipboard_manager.cpp

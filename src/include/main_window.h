@@ -14,8 +14,6 @@
 #ifndef OCTANE_GUI_CLIENT_MAIN_WINDOW_H_
 #define OCTANE_GUI_CLIENT_MAIN_WINDOW_H_
 
-#include <api_client.h>
-
 #include <QApplication>
 #include <QHotkey>
 #include <QSettings>
@@ -31,8 +29,6 @@ namespace octane::gui {
     QHotkey* pasteToSelectionHotkey;
     QHotkey* pasteToClipboardHotkey;
     ClipboardManager* clipboardManager;
-
-    ApiClient apiClient;
 
   public:
     MainWindow(QApplication* app, QWidget* parent = nullptr);

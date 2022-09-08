@@ -11,16 +11,49 @@
 
 namespace octane::gui {
   Api Api::instance;
-  Api::Api() : apiClient() {}
+  Api::Api() : client(nullptr) {}
+  Api::~Api() {
+    if (client) {
+      delete client;
+      client = nullptr;
+    }
+  }
+  Result<_, ErrorResponse> Api::init(const QString& token,
+                                     const QString& origin,
+                                     const QString& baseUrl) {
+    if (instance.client) {
+      delete instance.client;
+      instance.client = nullptr;
+    }
+
+    instance.client = new ApiClient(
+      token.toStdString(), origin.toStdString(), baseUrl.toStdString());
+    auto result = instance.client->init();
+    if (!result) {
+      return error(result.err());
+    }
+
+    return ok();
+  }
   Result<_, ErrorResponse> Api::connect(std::uint64_t id) {
-    auto result = instance.apiClient.connectRoom(id, getDeviceName());
+    if (instance.client == nullptr) {
+      return makeError(
+        "ERR_API_CLIENT_IS_NOT_INITIALIZED",
+        "ApiClient is not initialized. Call Api::init before connecting.");
+    }
+    auto result = instance.client->connectRoom(id, getDeviceName());
     if (!result) {
       return error(result.err());
     }
     return ok();
   }
   Result<std::uint64_t, ErrorResponse> Api::createRoom(const QString& name) {
-    auto createResult = instance.apiClient.createRoom(name.toStdString());
+    if (instance.client == nullptr) {
+      return makeError(
+        "ERR_API_CLIENT_IS_NOT_INITIALIZED",
+        "ApiClient is not initialized. Call Api::init before connecting.");
+    }
+    auto createResult = instance.client->createRoom(name.toStdString());
     if (!createResult) {
       return error(createResult.err());
     }
@@ -31,7 +64,12 @@ namespace octane::gui {
     }
     return ok(id);
   }
-  void Api::upload(const ClipboardData& data) {
+  Result<_, ErrorResponse> Api::upload(const ClipboardData& data) {
+    if (instance.client == nullptr) {
+      return makeError(
+        "ERR_API_CLIENT_IS_NOT_INITIALIZED",
+        "ApiClient is not initialized. Call Api::init before connecting.");
+    }
     if (std::holds_alternative<UniData>(data.data)) {
       const auto& uniData = std::get<UniData>(data.data);
       ContentType contentType;
@@ -40,7 +78,7 @@ namespace octane::gui {
       } else {
         contentType = ContentType::File;
       }
-      auto result = instance.apiClient.uploadContent(
+      auto result = instance.client->uploadContent(
       Content{
         .contentStatus = ContentStatus{
           .device    = getDeviceName(),
@@ -65,7 +103,7 @@ namespace octane::gui {
           = std::vector<std::uint8_t>(file.second.begin(), file.second.end()),
         });
       }
-      auto result = instance.apiClient.uploadContent(
+      auto result = instance.client->uploadContent(
         Content{
           .contentStatus = ContentStatus{
             .device = getDeviceName(),
@@ -82,7 +120,12 @@ namespace octane::gui {
     }
   }
   Result<ClipboardData, ErrorResponse> Api::download() {
-    auto result = instance.apiClient.getContent();
+    if (instance.client == nullptr) {
+      return makeError(
+        "ERR_API_CLIENT_IS_NOT_INITIALIZED",
+        "ApiClient is not initialized. Call Api::init before connecting.");
+    }
+    auto result = instance.client->getContent();
     if (!result) {
       return error(result.err());
     }
