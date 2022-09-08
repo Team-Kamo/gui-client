@@ -68,13 +68,19 @@ namespace octane::gui::darwin {
       parent(parent),
       copyFromSelectionCallback(copyFromSelectionCallback),
       timerId(0),
-      oldData(parent->getClipboardData()) {
+      oldData(parent->getClipboardData()),
+      count(0),
+      limit(5) {
     timerId = startTimer(100);
   }
   void OsxClipboardManager::Observer::timerEvent(QTimerEvent *e) {
     if (e->timerId() != timerId) return;
     auto data = parent->getClipboardData();
     if (data && oldData != data) {
+      copyFromSelectionCallback(std::move(data.value()));
+      destroy();
+    }
+    if(++count == limit) {
       copyFromSelectionCallback(std::move(data.value()));
       destroy();
     }

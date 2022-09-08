@@ -29,10 +29,35 @@ namespace octane::gui {
   }
   ClipboardManager::~ClipboardManager() {}
   std::optional<ClipboardData> ClipboardManager::getClipboardData() {
+    qDebug() << "ClipboardManager::getClipboardData";
     auto clipboard = QApplication::clipboard();
     auto mimeData  = clipboard->mimeData();
 
+    if (mimeData->hasUrls()) {
+      qDebug() << "Urls";
+      MultiData multiData;
+      for (const auto& url : mimeData->urls()) {
+        if (!url.isLocalFile()) continue;
+        QFileInfo fileInfo(url.toLocalFile());
+        auto filename = fileInfo.fileName();
+        if (filename.isEmpty()) {
+          filename = QDir(fileInfo.filePath()).dirName();
+        }
+        if (fileInfo.isDir()) {
+          if (!searchFiles(
+                filename.toStdString() + "/", fileInfo, multiData.files)) {
+            return std::nullopt;
+          }
+        } else {
+          multiData.files[filename.toStdString()] = readFile(fileInfo);
+        }
+      }
+      return ClipboardData{
+        .data = std::move(multiData),
+      };
+    }
     if (mimeData->hasImage()) {
+      qDebug() << "Image";
       auto image = qvariant_cast<QImage>(mimeData->imageData());
       QByteArray data;
       QBuffer buffer(&data);
@@ -45,27 +70,8 @@ namespace octane::gui {
         },
       };
     }
-    if (mimeData->hasUrls()) {
-      MultiData multiData;
-      for (const auto& url : mimeData->urls()) {
-        if (!url.isLocalFile()) continue;
-        QFileInfo fileInfo(url.toLocalFile());
-        if (fileInfo.isDir()) {
-          if (!searchFiles(fileInfo.fileName().toStdString() + "/",
-                           fileInfo,
-                           multiData.files)) {
-            return std::nullopt;
-          }
-        } else {
-          auto filename             = fileInfo.fileName().toStdString();
-          multiData.files[filename] = readFile(fileInfo);
-        }
-      }
-      return ClipboardData{
-        .data = std::move(multiData),
-      };
-    }
     if (mimeData->hasText()) {
+      qDebug() << "Text";
       return ClipboardData{
         .data = UniData {
           .mime = "text/plain",
@@ -112,8 +118,16 @@ namespace octane::gui {
       }
 
       auto mimeData = new QMimeData();
+#if defined(Q_OS_WIN)
       mimeData->setText(filenames);
       mimeData->setUrls(urls);
+#elif defined(Q_OS_MAC)
+      mimeData->setUrls(urls);
+      mimeData->setText(filenames);
+#else
+      mimeData->setText(filenames);
+      mimeData->setUrls(urls);
+#endif
       clipboard->setMimeData(mimeData);
     }
   };
@@ -134,19 +148,21 @@ namespace octane::gui {
     QDir dir(dirInfo.absoluteFilePath());
     // NOTE: QDir::NoDotAndDotDotを指定するとなぜかループが回らない。
     for (const auto& fileInfo : dir.entryInfoList()) {
-      qDebug() << fileInfo.fileName();
       if (fileInfo.fileName() == "." || fileInfo.fileName() == "..") {
         continue;
       }
+
+      auto filename = fileInfo.fileName();
+      if (filename.isEmpty()) {
+        filename = QDir(fileInfo.filePath()).dirName();
+      }
       if (fileInfo.isDir()) {
-        if (!searchFiles(basePath + fileInfo.fileName().toStdString() + "/",
-                         fileInfo,
-                         output)) {
+        if (!searchFiles(
+              basePath + filename.toStdString() + "/", fileInfo, output)) {
           return false;
         }
       } else {
-        auto filename    = basePath + fileInfo.fileName().toStdString();
-        output[filename] = readFile(fileInfo);
+        output[basePath + filename.toStdString()] = readFile(fileInfo);
       }
     }
     return true;

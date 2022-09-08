@@ -15,6 +15,8 @@ namespace octane::gui::darwin {
       int timerId;
       std::optional<ClipboardData> oldData;
       std::function<void(ClipboardData &&)> copyFromSelectionCallback;
+      size_t count;
+      size_t limit;
 
     public:
       Observer(
