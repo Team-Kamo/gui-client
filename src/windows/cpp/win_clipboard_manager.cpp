@@ -15,31 +15,44 @@ namespace octane::gui::windows {
   }
   void WinClipboardManager::copyFromSelection(
     const std::function<void(ClipboardData &&)> &callback) {
-    constexpr int inputSize = 6;
-    INPUT inputs[inputSize];
-    ZeroMemory(inputs, sizeof(inputs));
-
-    inputs[0].ki.wVk     = VK_MENU;
-    inputs[0].ki.dwFlags = KEYEVENTF_KEYUP;
-
-    inputs[1].ki.wVk = VK_CONTROL;
-
-    inputs[2].ki.wVk = 'C';
-
-    inputs[3].ki.wVk     = VK_CONTROL;
-    inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
-
-    inputs[4].ki.wVk     = 'C';
-    inputs[4].ki.dwFlags = KEYEVENTF_KEYUP;
-
-    inputs[5].ki.wVk = VK_MENU;
+    INPUT inputs[] = {
+      INPUT{
+        .ki = KEYBDINPUT{
+          .wVk = VK_MENU,
+          .dwFlags = KEYEVENTF_KEYUP,
+        },
+      },
+      INPUT {
+        .ki = KEYBDINPUT{
+          .wVk = VK_CONTROL,
+        },
+      },
+      INPUT {
+        .ki = KEYBDINPUT{
+          .wVk = 'C',
+        },
+      },
+      INPUT {
+        .ki = KEYBDINPUT{
+          .wVk = VK_CONTROL,
+          .dwFlags = KEYEVENTF_KEYUP,
+        },
+      },
+      INPUT {
+        .ki = KEYBDINPUT{
+          .wVk = 'C',
+          .dwFlags = KEYEVENTF_KEYUP,
+        },
+      },
+    };
 
     for (auto &input : inputs) {
       input.type     = INPUT_KEYBOARD;
       input.ki.wScan = MapVirtualKey(input.ki.wVk, MAPVK_VK_TO_VSC);
     }
 
-    if (SendInput(inputSize, inputs, sizeof(INPUT)) != inputSize) {
+    auto size = sizeof(inputs) / sizeof(inputs[0]);
+    if (SendInput(size, inputs, sizeof(INPUT)) != size) {
       qDebug() << HRESULT_FROM_WIN32(GetLastError());
       return;
     }
@@ -52,31 +65,44 @@ namespace octane::gui::windows {
   void WinClipboardManager::pasteToSelection(const ClipboardData &data) {
     setClipboardData(data, TmpDir::makeTmpDir());
 
-    constexpr int inputSize = 6;
-    INPUT inputs[inputSize];
-    ZeroMemory(inputs, sizeof(inputs));
-
-    inputs[0].ki.wVk     = VK_MENU;
-    inputs[0].ki.dwFlags = KEYEVENTF_KEYUP;
-
-    inputs[1].ki.wVk = VK_CONTROL;
-
-    inputs[2].ki.wVk = 'V';
-
-    inputs[3].ki.wVk     = VK_CONTROL;
-    inputs[3].ki.dwFlags = KEYEVENTF_KEYUP;
-
-    inputs[4].ki.wVk     = 'V';
-    inputs[4].ki.dwFlags = KEYEVENTF_KEYUP;
-
-    inputs[5].ki.wVk = VK_MENU;
+    INPUT inputs[] = {
+      INPUT{
+        .ki = KEYBDINPUT{
+          .wVk = VK_MENU,
+          .dwFlags = KEYEVENTF_KEYUP,
+        },
+      },
+      INPUT {
+        .ki = KEYBDINPUT{
+          .wVk = VK_CONTROL,
+        },
+      },
+      INPUT {
+        .ki = KEYBDINPUT{
+          .wVk = 'V',
+        },
+      },
+      INPUT {
+        .ki = KEYBDINPUT{
+          .wVk = VK_CONTROL,
+          .dwFlags = KEYEVENTF_KEYUP,
+        },
+      },
+      INPUT {
+        .ki = KEYBDINPUT{
+          .wVk = 'V',
+          .dwFlags = KEYEVENTF_KEYUP,
+        },
+      },
+    };
 
     for (auto &input : inputs) {
       input.type     = INPUT_KEYBOARD;
       input.ki.wScan = MapVirtualKey(input.ki.wVk, MAPVK_VK_TO_VSC);
     }
 
-    if (SendInput(inputSize, inputs, sizeof(INPUT)) != inputSize) {
+    auto size = sizeof(inputs) / sizeof(inputs[0]);
+    if (SendInput(size, inputs, sizeof(INPUT)) != size) {
       qDebug() << HRESULT_FROM_WIN32(GetLastError());
       return;
     }

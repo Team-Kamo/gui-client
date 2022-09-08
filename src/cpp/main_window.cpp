@@ -129,7 +129,7 @@ namespace octane::gui {
         copyFromSelectionHotkey, &QHotkey::activated, qApp, [=]() {
           qDebug() << "Activated 'copyFromSelectionHotkey'";
           if (clipboardManager == nullptr) return;
-          clipboardManager->copyFromSelection([&](ClipboardData&& data) {
+          clipboardManager->copyFromSelection([=](ClipboardData&& data) {
             auto result = Api::upload(data);
             if (!result) {
               openCritical(this, result.err());

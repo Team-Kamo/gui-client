@@ -90,7 +90,7 @@ namespace octane::gui {
                                            uniData.data.end()),
       });
       if (!result) {
-        openCritical(nullptr, result.err());
+        return error(result.err());
       }
     } else {
       const auto& multiData = std::get<MultiData>(data.data);
@@ -115,9 +115,11 @@ namespace octane::gui {
         }
       );
       if (!result) {
-        openCritical(nullptr, result.err());
+        return error(result.err());
       }
     }
+
+    return ok();
   }
   Result<ClipboardData, ErrorResponse> Api::download() {
     if (instance.client == nullptr) {
