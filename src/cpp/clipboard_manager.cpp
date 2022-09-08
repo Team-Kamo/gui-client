@@ -33,7 +33,7 @@ namespace octane::gui {
     auto clipboard = QApplication::clipboard();
     auto mimeData  = clipboard->mimeData();
 
-    if (mimeData->hasUrls()) {
+    if (mimeData->hasUrls() && mimeData->urls().front().isLocalFile()) {
       qDebug() << "Urls";
       MultiData multiData;
       for (const auto& url : mimeData->urls()) {
