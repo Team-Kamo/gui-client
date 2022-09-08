@@ -76,6 +76,9 @@ namespace octane::gui {
           .data = std::move(uploadData),
         }
       );
+      if (!result) {
+        openCritical(nullptr, result.err());
+      }
     }
   }
   Result<ClipboardData, ErrorResponse> Api::download() {
