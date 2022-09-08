@@ -11,13 +11,14 @@ namespace octane::gui {
     tmpDirs = nullptr;
   }
   QTemporaryDir& TmpDir::makeTmpDir() {
-    if (instance.numTmpDirs <= instance.lastIndex) {
+    if (instance.lastIndex + 1 >= instance.numTmpDirs) {
       instance.extend();
     }
-    return instance.tmpDirs[instance.lastIndex++];
+    ++instance.lastIndex;
+    return instance.tmpDirs[instance.lastIndex];
   }
   void TmpDir::extend() {
-    size_t oldSize = numTmpDirs;
+    int64_t oldSize = numTmpDirs;
     if (oldSize == 0) {
       numTmpDirs = 16;
     } else {
@@ -25,7 +26,7 @@ namespace octane::gui {
     }
 
     auto newTmpDirs = new QTemporaryDir[numTmpDirs];
-    for (size_t i = 0; i < oldSize; ++i) {
+    for (int64_t i = 0; i < oldSize; ++i) {
       moveFiles(newTmpDirs[i], tmpDirs[i]);
     }
 

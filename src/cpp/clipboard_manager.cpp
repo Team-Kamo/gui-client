@@ -49,9 +49,11 @@ namespace octane::gui {
       MultiData multiData;
       for (const auto& url : mimeData->urls()) {
         if (!url.isLocalFile()) continue;
-        QFileInfo fileInfo(url.path());
+        QFileInfo fileInfo(url.toLocalFile());
         if (fileInfo.isDir()) {
-          if (!searchFiles("", fileInfo, multiData.files)) {
+          if (!searchFiles(fileInfo.fileName().toStdString() + "/",
+                           fileInfo,
+                           multiData.files)) {
             return std::nullopt;
           }
         } else {
@@ -90,21 +92,27 @@ namespace octane::gui {
       }
     } else {
       const auto& multiData = std::get<MultiData>(data.data);
-      QString filenames;
-      for (const auto& file : multiData.files) {
-        filenames.append(QString::fromStdString(file.first));
-        filenames.append("\n");
-      }
-      clipboard->setText(filenames);
 
-      QList<QUrl> urls;
       for (const auto& file : multiData.files) {
         auto tmpFile = tmpDir.filePath(QString::fromStdString(file.first));
         writeFile(tmpFile, file.second);
-        urls.append(tmpFile);
+      }
+
+      QString filenames;
+      QList<QUrl> urls;
+      auto root = QDir(tmpDir.path());
+      for (const auto& file : root.entryInfoList()) {
+        if (file.fileName() == "." || file.fileName() == "..") {
+          continue;
+        }
+        filenames.append(file.fileName());
+        filenames.append("\n");
+        qDebug() << file.absoluteFilePath();
+        urls.append(QUrl::fromLocalFile(file.absoluteFilePath()));
       }
 
       auto mimeData = new QMimeData();
+      mimeData->setText(filenames);
       mimeData->setUrls(urls);
       clipboard->setMimeData(mimeData);
     }
@@ -123,23 +131,28 @@ namespace octane::gui {
       }
     }
     assert(dirInfo.isDir());
-    QDir dir(dirInfo.fileName());
-    for (const auto& fileInfo : dir.entryInfoList(QDir::NoDotAndDotDot)) {
+    QDir dir(dirInfo.absoluteFilePath());
+    // NOTE: QDir::NoDotAndDotDotを指定するとなぜかループが回らない。
+    for (const auto& fileInfo : dir.entryInfoList()) {
+      qDebug() << fileInfo.fileName();
+      if (fileInfo.fileName() == "." || fileInfo.fileName() == "..") {
+        continue;
+      }
       if (fileInfo.isDir()) {
-        if (!searchFiles(basePath + "/" + fileInfo.fileName().toStdString(),
+        if (!searchFiles(basePath + fileInfo.fileName().toStdString() + "/",
                          fileInfo,
                          output)) {
           return false;
         }
       } else {
-        auto filename    = fileInfo.fileName().toStdString();
+        auto filename    = basePath + fileInfo.fileName().toStdString();
         output[filename] = readFile(fileInfo);
       }
     }
     return true;
   }
   QByteArray ClipboardManager::readFile(const QFileInfo& fileInfo) {
-    QFile file(fileInfo.filePath());
+    QFile file(fileInfo.absoluteFilePath());
     file.open(QIODevice::ReadOnly);
     return file.readAll();
   }

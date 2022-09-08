@@ -22,6 +22,9 @@ namespace octane::gui {
     static Result<std::uint64_t, ErrorResponse> createRoom(const QString& name);
     static void upload(const ClipboardData& data);
     static Result<ClipboardData, ErrorResponse> download();
+
+  private:
+    static std::vector<uint8_t> readFile(std::string_view filename);
   };
 } // namespace octane::gui
 

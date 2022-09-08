@@ -9,15 +9,16 @@ namespace octane::gui {
     // NOTE: QTemporaryDirのムーブコンストラクタはQt6.4以降で使える。
     // そのためstd::vectorによる実装ができない。
     QTemporaryDir* tmpDirs;
-    size_t lastIndex;
-    size_t numTmpDirs;
+    int64_t lastIndex;
+    int64_t numTmpDirs;
 
     static TmpDir instance;
 
     void extend();
     void moveFiles(QTemporaryDir& dist, QTemporaryDir& src);
 
-      public : TmpDir();
+  public:
+    TmpDir();
     ~TmpDir();
     static QTemporaryDir& makeTmpDir();
   };
