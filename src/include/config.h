@@ -17,12 +17,12 @@ namespace octane::gui {
   constexpr auto API_ORIGIN   = "http://localhost:3000";
   constexpr auto API_BASE_URL = "/api/v1";
 
-  constexpr auto SETTING_KEY_API_TOKEN              = API_TOKEN;
-  constexpr auto SETTING_DEFAULT_VALUE_API_TOKEN    = "api/token";
-  constexpr auto SETTING_KEY_API_ORIGIN             = API_ORIGIN;
-  constexpr auto SETTING_DEFAULT_VALUE_API_ORIGIN   = "api/origin";
-  constexpr auto SETTING_KEY_API_BASE_URL           = API_BASE_URL;
-  constexpr auto SETTING_DEFAULT_VALUE_API_BASE_URL = "api/base_url";
+  constexpr auto SETTING_KEY_API_TOKEN              = "api/token";
+  constexpr auto SETTING_DEFAULT_VALUE_API_TOKEN    = API_TOKEN;
+  constexpr auto SETTING_KEY_API_ORIGIN             = "api/origin";
+  constexpr auto SETTING_DEFAULT_VALUE_API_ORIGIN   = API_ORIGIN;
+  constexpr auto SETTING_KEY_API_BASE_URL           = "api/base_url";
+  constexpr auto SETTING_DEFAULT_VALUE_API_BASE_URL = API_BASE_URL;
 
   constexpr auto SETTING_KEY_ROOM_ID             = "room/id";
   constexpr auto SETTING_DEFAULT_VALUE_ROOM_ID   = 0;
