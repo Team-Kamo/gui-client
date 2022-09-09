@@ -88,8 +88,7 @@ namespace octane::gui {
           .type      = contentType,
           .mime      = uniData.mime,
         },
-        .data = std::vector<std::uint8_t>(uniData.data.begin(),
-                                           uniData.data.end()),
+        .data = std::move(uniData.data),
       });
       if (!result) {
         return error(result.err());
@@ -101,8 +100,7 @@ namespace octane::gui {
       for (const auto& file : multiData.files) {
         uploadData.push_back(FileInfo{
           .filename = file.first,
-          .data
-          = std::vector<std::uint8_t>(file.second.begin(), file.second.end()),
+          .data     = std::move(file.second),
         });
       }
       auto result = instance.client->uploadContent(
