@@ -17,8 +17,8 @@ endif()
 
 qt_add_executable(
   octane
-  # MACOSX_BUNDLE
-  # ${app_icon_macos}
+  MACOSX_BUNDLE
+  ${app_icon_macos}
   assets/assets.qrc
   cpp/main.cpp
   cpp/settings.cpp
