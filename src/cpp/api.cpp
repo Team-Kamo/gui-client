@@ -146,8 +146,8 @@ namespace octane::gui {
     } else if (std::holds_alternative<std::vector<std::uint8_t>>(data)) {
       const auto& vec = std::get<std::vector<std::uint8_t>>(data);
       QByteArray qData;
-      qData.reserve(vec.size());
-      std::copy(vec.begin(), vec.end(), std::back_inserter(qData));
+      qData.resize(vec.size());
+      std::copy(vec.begin(), vec.end(), qData.begin());
       return ok(ClipboardData{
         .data = UniData{
           .mime = status.mime,
@@ -158,10 +158,10 @@ namespace octane::gui {
       const auto& files = std::get<std::vector<FileInfo>>(data);
       MultiData multiData;
       for (const auto& file : files) {
-        multiData.files[file.filename].reserve(file.data.size());
+        multiData.files[file.filename].resize(file.data.size());
         std::copy(file.data.begin(),
                   file.data.end(),
-                  std::back_inserter(multiData.files[file.filename]));
+                  multiData.files[file.filename].begin());
       }
       return ok(ClipboardData{
         .data = std::move(multiData),
