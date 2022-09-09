@@ -41,7 +41,7 @@ namespace octane::gui {
      * @param[in,out] output
      * @return キャンセルされたらfalse
      */
-    bool searchFiles(const std::string& basePath,
+    bool searchFiles(const QString& basePath,
                      const QFileInfo& dirInfo,
                      std::unordered_map<std::string, QByteArray>& output);
     QByteArray readFile(const QFileInfo& fileInfo);

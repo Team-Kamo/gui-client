@@ -44,13 +44,12 @@ namespace octane::gui {
           filename = QDir(fileInfo.filePath()).dirName();
         }
         if (fileInfo.isDir()) {
-          if (!searchFiles(filename.toUtf8().toStdString() + "/",
-                           fileInfo,
-                           multiData.files)) {
+          if (!searchFiles(filename + "/", fileInfo, multiData.files)) {
             return std::nullopt;
           }
         } else {
-          multiData.files[filename.toUtf8().toStdString()] = readFile(fileInfo);
+          multiData.files[filename.toUtf8().toBase64().toStdString()]
+            = readFile(fileInfo);
         }
       }
       return ClipboardData{
@@ -76,7 +75,7 @@ namespace octane::gui {
       return ClipboardData{
         .data = UniData {
           .mime = "text/plain",
-        .data = mimeData->text().toUtf8(),
+          .data = mimeData->text().toUtf8(),
         },
       };
     }
@@ -101,7 +100,8 @@ namespace octane::gui {
       const auto& multiData = std::get<MultiData>(data.data);
 
       for (const auto& file : multiData.files) {
-        auto tmpFile = tmpDir.filePath(QString::fromStdString(file.first));
+        auto tmpFile = tmpDir.filePath(
+          QByteArray::fromBase64(QString::fromStdString(file.first).toUtf8()));
         writeFile(tmpFile, file.second);
       }
 
@@ -133,7 +133,7 @@ namespace octane::gui {
     }
   };
   bool ClipboardManager::searchFiles(
-    const std::string& basePath,
+    const QString& basePath,
     const QFileInfo& dirInfo,
     std::unordered_map<std::string, QByteArray>& output) {
     if (output.size() == 100) {
@@ -158,13 +158,12 @@ namespace octane::gui {
         filename = QDir(fileInfo.filePath()).dirName();
       }
       if (fileInfo.isDir()) {
-        if (!searchFiles(basePath + filename.toUtf8().toStdString() + "/",
-                         fileInfo,
-                         output)) {
+        if (!searchFiles(basePath + filename + "/", fileInfo, output)) {
           return false;
         }
       } else {
-        output[basePath + filename.toUtf8().toStdString()] = readFile(fileInfo);
+        output[(basePath + filename).toUtf8().toBase64().toStdString()]
+          = readFile(fileInfo);
       }
     }
     return true;
