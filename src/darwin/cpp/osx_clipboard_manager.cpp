@@ -27,8 +27,8 @@ namespace octane::gui::darwin {
 
     CGEventSourceRef src = CGEventSourceCreate(
       CGEventSourceStateID(kCGEventSourceStateCombinedSessionState));
-    CGEventRef cDown   = CGEventCreateKeyboardEvent(src, kVK_ANSI_C, true);
-    CGEventRef cUp     = CGEventCreateKeyboardEvent(src, kVK_ANSI_C, false);
+    CGEventRef cDown = CGEventCreateKeyboardEvent(src, kVK_ANSI_C, true);
+    CGEventRef cUp   = CGEventCreateKeyboardEvent(src, kVK_ANSI_C, false);
     CGEventSetFlags(cDown, CGEventFlags(kCGEventFlagMaskCommand));
     CGEventSetFlags(cUp, CGEventFlags(kCGEventFlagMaskCommand));
     CGEventPost(kCGAnnotatedSessionEventTap, cDown);
@@ -80,8 +80,10 @@ namespace octane::gui::darwin {
       copyFromSelectionCallback(std::move(data.value()));
       destroy();
     }
-    if(++count == limit) {
-      copyFromSelectionCallback(std::move(data.value()));
+    if (++count == limit) {
+      if (data) {
+        copyFromSelectionCallback(std::move(data.value()));
+      }
       destroy();
     }
   }
