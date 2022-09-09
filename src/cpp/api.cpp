@@ -26,9 +26,10 @@ namespace octane::gui {
       instance.client = nullptr;
     }
 
-    instance.client = new ApiClient(
-      token.toStdString(), origin.toStdString(), baseUrl.toStdString());
-    auto result = instance.client->init();
+    instance.client = new ApiClient(token.toUtf8().toStdString(),
+                                    origin.toUtf8().toStdString(),
+                                    baseUrl.toUtf8().toStdString());
+    auto result     = instance.client->init();
     if (!result) {
       return error(result.err());
     }
@@ -53,7 +54,8 @@ namespace octane::gui {
         "ERR_API_CLIENT_IS_NOT_INITIALIZED",
         "ApiClient is not initialized. Call Api::init before connecting.");
     }
-    auto createResult = instance.client->createRoom(name.toStdString());
+    auto createResult
+      = instance.client->createRoom(name.toUtf8().toStdString());
     if (!createResult) {
       return error(createResult.err());
     }

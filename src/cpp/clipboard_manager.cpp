@@ -44,12 +44,13 @@ namespace octane::gui {
           filename = QDir(fileInfo.filePath()).dirName();
         }
         if (fileInfo.isDir()) {
-          if (!searchFiles(
-                filename.toStdString() + "/", fileInfo, multiData.files)) {
+          if (!searchFiles(filename.toUtf8().toStdString() + "/",
+                           fileInfo,
+                           multiData.files)) {
             return std::nullopt;
           }
         } else {
-          multiData.files[filename.toStdString()] = readFile(fileInfo);
+          multiData.files[filename.toUtf8().toStdString()] = readFile(fileInfo);
         }
       }
       return ClipboardData{
@@ -157,12 +158,13 @@ namespace octane::gui {
         filename = QDir(fileInfo.filePath()).dirName();
       }
       if (fileInfo.isDir()) {
-        if (!searchFiles(
-              basePath + filename.toStdString() + "/", fileInfo, output)) {
+        if (!searchFiles(basePath + filename.toUtf8().toStdString() + "/",
+                         fileInfo,
+                         output)) {
           return false;
         }
       } else {
-        output[basePath + filename.toStdString()] = readFile(fileInfo);
+        output[basePath + filename.toUtf8().toStdString()] = readFile(fileInfo);
       }
     }
     return true;
