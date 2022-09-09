@@ -7,4 +7,10 @@ if ($?) {
   cmake --build release --config Release
 }
 
+if($?) {
+  Push-Location release/Release
+  windeployqt --dir dist octane.exe
+  Pop-Location
+}
+
 Pop-Location
