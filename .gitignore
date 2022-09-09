@@ -2,4 +2,6 @@ build/
 release/
 tmp/
 Output/
+bin/
 .DS_Store
+win_installer_setup.iss

@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.21)
 if(WIN32)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/windows)
   set(ENV_DEP_LIB octane_gui_windows)
+  set(app_icon_windows ${CMAKE_CURRENT_SOURCE_DIR}/assets/appicon.rc)
+  set(ENV_DEP_SRC ${app_icon_windows})
 elseif(APPLE)
   add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/darwin)
   set(ENV_DEP_LIB octane_gui_darwin)
@@ -13,12 +15,12 @@ elseif(APPLE)
     PROPERTIES
     MACOSX_PACKAGE_LOCATION "Resources"
   )
+  set(ENV_DEP_SRC MACOSX_BUNDLE ${app_icon_macos})
 endif()
 
 qt_add_executable(
   octane
-  MACOSX_BUNDLE
-  ${app_icon_macos}
+  ${ENV_DEP_SRC}
   assets/assets.qrc
   cpp/main.cpp
   cpp/settings.cpp
