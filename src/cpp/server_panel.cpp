@@ -31,7 +31,7 @@ namespace octane::gui {
     });
     form->addRow(tokenLabel, tokenInput);
 
-    auto originLabel = new QLabel("APIオリジン");
+    auto originLabel = new QLabel("APIオリジン: ");
     auto originInput = new QLineEdit();
     originInput->setText(Settings::getAsStr(SETTING_KEY_API_ORIGIN));
     Settings::watchAsStr(SETTING_KEY_API_ORIGIN, [=](const auto& origin) {
@@ -39,9 +39,9 @@ namespace octane::gui {
     });
     form->addRow(originLabel, originInput);
 
-    auto baseUrlLabel = new QLabel("APIベースURL");
+    auto baseUrlLabel = new QLabel("APIベースURL: ");
     auto baseUrlInput = new QLineEdit();
-    baseUrlInput->setText(Settings::getAsStr(SETTING_KEY_API_ORIGIN));
+    baseUrlInput->setText(Settings::getAsStr(SETTING_KEY_API_BASE_URL));
     Settings::watchAsStr(SETTING_KEY_API_BASE_URL, [=](const auto& baseUrl) {
       baseUrlInput->setText(baseUrl);
     });
@@ -67,7 +67,9 @@ namespace octane::gui {
     });
     auto saveButton = new QPushButton("保存");
     QObject::connect(saveButton, &QPushButton::clicked, qApp, [=]() {
-      Settings::setAsU64(SETTING_KEY_ROOM_ID, tokenInput->text().toULongLong());
+      Settings::setAsStr(SETTING_KEY_API_TOKEN, tokenInput->text());
+      Settings::setAsStr(SETTING_KEY_API_ORIGIN, originInput->text());
+      Settings::setAsStr(SETTING_KEY_API_BASE_URL, baseUrlInput->text());
       initApi();
     });
 
