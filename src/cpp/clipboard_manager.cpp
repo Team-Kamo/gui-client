@@ -11,6 +11,7 @@
 #include <QMimeData>
 #include <QUrl>
 #include <cassert>
+#include <cstdio>
 
 #if defined(Q_OS_WIN)
 #include "windows/include/win_clipboard_manager.h"
@@ -66,16 +67,17 @@ namespace octane::gui {
       return ClipboardData{
         .data = UniData {
           .mime = "image/png",
-          .data = std::move(data),
+          .data = std::vector<std::uint8_t>(data.begin(), data.end()),
         },
       };
     }
     if (mimeData->hasText()) {
       qDebug() << "Text";
+      auto data = mimeData->text().toUtf8();
       return ClipboardData{
         .data = UniData {
           .mime = "text/plain",
-          .data = mimeData->text().toUtf8(),
+          .data = std::vector<std::uint8_t>(data.begin(), data.end()),
         },
       };
     }
@@ -94,7 +96,8 @@ namespace octane::gui {
         image.loadFromData(uniData.data);
         clipboard->setImage(image);
       } else {
-        clipboard->setText(uniData.data);
+        clipboard->setText(QByteArray::fromRawData(
+          (const char*)uniData.data.data(), uniData.data.size()));
       }
     } else {
       const auto& multiData = std::get<MultiData>(data.data);
@@ -135,7 +138,7 @@ namespace octane::gui {
   bool ClipboardManager::searchFiles(
     const QString& basePath,
     const QFileInfo& dirInfo,
-    std::unordered_map<std::string, QByteArray>& output) {
+    std::unordered_map<std::string, std::vector<std::uint8_t>>& output) {
     if (output.size() == 100) {
       if (QMessageBox::question(
             nullptr,
@@ -168,19 +171,28 @@ namespace octane::gui {
     }
     return true;
   }
-  QByteArray ClipboardManager::readFile(const QFileInfo& fileInfo) {
-    QFile file(fileInfo.absoluteFilePath());
-    file.open(QIODevice::ReadOnly);
-    return file.readAll();
+  std::vector<std::uint8_t> ClipboardManager::readFile(
+    const QFileInfo& fileInfo) {
+    auto file = fopen(fileInfo.absoluteFilePath().toStdString().c_str(), "rb");
+    if (!file) return {};
+
+    std::vector<std::uint8_t> data;
+    data.resize(fileInfo.size());
+    fread(data.data(), 1, data.size(), file);
+    fclose(file);
+
+    return data;
   }
   void ClipboardManager::writeFile(const QString& path,
-                                   const QByteArray& bytes) {
+                                   const std::vector<std::uint8_t>& bytes) {
     QDir dir = QFileInfo(path).dir();
     if (!dir.exists()) {
       dir.mkpath(dir.path());
     }
-    QFile file(path);
-    file.open(QIODevice::WriteOnly);
-    file.write(bytes);
+
+    auto file = fopen(path.toStdString().c_str(), "wb");
+    if (!file) return;
+    fwrite(bytes.data(), 1, bytes.size(), file);
+    fclose(file);
   }
 } // namespace octane::gui

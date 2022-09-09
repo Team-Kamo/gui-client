@@ -138,30 +138,26 @@ namespace octane::gui {
     auto& status = result.get().contentStatus;
 
     if (std::holds_alternative<std::string>(data)) {
+      auto& str = std::get<std::string>(data);
+      std::vector<std::uint8_t> vec;
+      vec.resize(str.size());
+      std::copy(str.begin(), str.end(), vec.begin());
       return ok(ClipboardData{
-        .data = UniData{ .mime = status.mime,
-                         .data = QByteArray::fromStdString(
-                           std::get<std::string>(data)), },
+        .data = UniData{ .mime = std::move(status.mime),
+                         .data = std::move(vec), },
       });
     } else if (std::holds_alternative<std::vector<std::uint8_t>>(data)) {
-      const auto& vec = std::get<std::vector<std::uint8_t>>(data);
-      QByteArray qData;
-      qData.resize(vec.size());
-      std::copy(vec.begin(), vec.end(), qData.begin());
       return ok(ClipboardData{
         .data = UniData{
           .mime = status.mime,
-          .data = std::move(qData),
+          .data = std::move(std::get<std::vector<std::uint8_t>>(data)),
         },
       });
     } else {
       const auto& files = std::get<std::vector<FileInfo>>(data);
       MultiData multiData;
       for (const auto& file : files) {
-        multiData.files[file.filename].resize(file.data.size());
-        std::copy(file.data.begin(),
-                  file.data.end(),
-                  multiData.files[file.filename].begin());
+        multiData.files[file.filename] = std::move(file.data);
       }
       return ok(ClipboardData{
         .data = std::move(multiData),

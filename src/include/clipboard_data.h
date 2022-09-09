@@ -10,10 +10,10 @@
 namespace octane::gui {
   struct UniData {
     std::string mime;
-    QByteArray data;
+    std::vector<std::uint8_t> data;
   };
   struct MultiData {
-    std::unordered_map<std::string, QByteArray> files;
+    std::unordered_map<std::string, std::vector<std::uint8_t>> files;
   };
   struct ClipboardData {
     std::variant<UniData, MultiData> data;

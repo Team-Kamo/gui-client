@@ -41,11 +41,12 @@ namespace octane::gui {
      * @param[in,out] output
      * @return キャンセルされたらfalse
      */
-    bool searchFiles(const QString& basePath,
-                     const QFileInfo& dirInfo,
-                     std::unordered_map<std::string, QByteArray>& output);
-    QByteArray readFile(const QFileInfo& fileInfo);
-    void writeFile(const QString& path, const QByteArray& bytes);
+    bool searchFiles(
+      const QString& basePath,
+      const QFileInfo& dirInfo,
+      std::unordered_map<std::string, std::vector<std::uint8_t>>& output);
+    std::vector<std::uint8_t> readFile(const QFileInfo& fileInfo);
+    void writeFile(const QString& path, const std::vector<std::uint8_t>& bytes);
   };
 } // namespace octane::gui
 
