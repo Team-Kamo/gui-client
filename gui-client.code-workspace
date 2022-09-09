@@ -181,7 +181,7 @@
         "name": "(Mac) 起動",
         "type": "lldb",
         "request": "launch",
-        "program": "${workspaceFolder}/build/src/octane",
+        "program": "${workspaceFolder}/build/src/octane.app/Contents/MacOS/octane",
         "console": "internalConsole",
         "env": {
           "QT_MESSAGE_PATTERN": "%{time process} [%{threadid}] %{appname} %{category} %{function} %{file}:%{line} => %{message}"

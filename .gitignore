@@ -3,5 +3,6 @@ release/
 tmp/
 Output/
 bin/
+release_scripts/
 .DS_Store
 win_installer_setup.iss
