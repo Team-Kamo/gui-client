@@ -66,14 +66,14 @@ namespace octane::gui {
     }
     return ok(id);
   }
-  Result<_, ErrorResponse> Api::upload(const ClipboardData& data) {
+  Result<_, ErrorResponse> Api::upload(ClipboardData&& data) {
     if (instance.client == nullptr) {
       return makeError(
         "ERR_API_CLIENT_IS_NOT_INITIALIZED",
         "ApiClient is not initialized. Call Api::init before connecting.");
     }
     if (std::holds_alternative<UniData>(data.data)) {
-      const auto& uniData = std::get<UniData>(data.data);
+      auto& uniData = std::get<UniData>(data.data);
       ContentType contentType;
       if (uniData.mime.find("text/") == 0) {
         contentType = ContentType::Clipboard;
@@ -86,7 +86,7 @@ namespace octane::gui {
           .device    = getDeviceName(),
           .timestamp = (std::uint64_t)std::time(nullptr),
           .type      = contentType,
-          .mime      = uniData.mime,
+          .mime      = std::move(uniData.mime),
         },
         .data = std::move(uniData.data),
       });
@@ -94,7 +94,7 @@ namespace octane::gui {
         return error(result.err());
       }
     } else {
-      const auto& multiData = std::get<MultiData>(data.data);
+      auto& multiData = std::get<MultiData>(data.data);
       std::vector<FileInfo> uploadData;
       uploadData.reserve(multiData.files.size());
       for (const auto& file : multiData.files) {
@@ -103,6 +103,7 @@ namespace octane::gui {
           .data     = std::move(file.second),
         });
       }
+
       auto result = instance.client->uploadContent(
         Content{
           .contentStatus = ContentStatus{

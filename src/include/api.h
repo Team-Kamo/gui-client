@@ -24,7 +24,7 @@ namespace octane::gui {
                                          const QString& baseUrl);
     static Result<_, ErrorResponse> connect(std::uint64_t id);
     static Result<std::uint64_t, ErrorResponse> createRoom(const QString& name);
-    static Result<_, ErrorResponse> upload(const ClipboardData& data);
+    static Result<_, ErrorResponse> upload(ClipboardData&& data);
     static Result<ClipboardData, ErrorResponse> download();
 
   private:

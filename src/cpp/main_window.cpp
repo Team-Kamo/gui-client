@@ -34,7 +34,7 @@
 #endif
 
 namespace octane::gui {
-  MainWindow::MainWindow(QApplication* app, QWidget* parent)
+  MainWindow::MainWindow([[maybe_unused]] QApplication*, QWidget* parent)
     : QMainWindow(parent),
       copyFromSelectionHotkey(nullptr),
       copyFromClipboardHotkey(nullptr),
@@ -116,7 +116,7 @@ namespace octane::gui {
           if (clipboardManager == nullptr) return;
           auto data = clipboardManager->copyFromClipboard();
           if (!data) return;
-          auto result = Api::upload(data.value());
+          auto result = Api::upload(std::move(data.value()));
           if (!result) {
             openCritical(this, result.err());
           }
@@ -130,10 +130,11 @@ namespace octane::gui {
           qDebug() << "Activated 'copyFromSelectionHotkey'";
           if (clipboardManager == nullptr) return;
           clipboardManager->copyFromSelection([=](ClipboardData&& data) {
-            auto result = Api::upload(data);
+            auto result = Api::upload(std::move(data));
             if (!result) {
               openCritical(this, result.err());
             }
+            qDebug() << "Uploaded.";
           });
         });
     };
@@ -164,7 +165,9 @@ namespace octane::gui {
             openCritical(this, result.err());
             return;
           }
+          qDebug() << "Downloaded.";
           clipboardManager->pasteToSelection(result.get());
+          qDebug() << "Done.";
         });
     };
 
